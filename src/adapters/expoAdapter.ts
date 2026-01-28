@@ -5,28 +5,45 @@
 
 import type { IKeyStorage, IRandomValues } from "./types";
 
+const EXPO_SECURE_STORE_HINT =
+  "expo-crypto-lib: expo-secure-store is required for createExpoKeyStorage(). Install with: npx expo install expo-secure-store";
+
+const EXPO_CRYPTO_HINT =
+  "expo-crypto-lib: expo-crypto is required for createExpoRandomValues(). Install with: npx expo install expo-crypto";
+
 function getExpoSecureStore(): {
   getItemAsync: (key: string) => Promise<string | null>;
   setItemAsync: (key: string, value: string) => Promise<void>;
   deleteItemAsync: (key: string) => Promise<void>;
 } {
-  // Dynamic require so non-Expo consumers don't fail at load time
-  const SecureStore = require("expo-secure-store");
-  return {
-    getItemAsync: SecureStore.getItemAsync ?? SecureStore.getItem,
-    setItemAsync: SecureStore.setItemAsync ?? SecureStore.setItem,
-    deleteItemAsync: SecureStore.deleteItemAsync ?? SecureStore.removeItem,
-  };
+  try {
+    const SecureStore = require("expo-secure-store");
+    return {
+      getItemAsync: SecureStore.getItemAsync ?? SecureStore.getItem,
+      setItemAsync: SecureStore.setItemAsync ?? SecureStore.setItem,
+      deleteItemAsync: SecureStore.deleteItemAsync ?? SecureStore.removeItem,
+    };
+  } catch (err) {
+    throw new Error(
+      `${EXPO_SECURE_STORE_HINT}\nOriginal error: ${err instanceof Error ? err.message : String(err)}`,
+    );
+  }
 }
 
 function getExpoCrypto(): {
   getRandomValues: (array: ArrayBufferView) => ArrayBufferView;
 } {
-  const Crypto = require("expo-crypto");
-  return {
-    getRandomValues:
-      Crypto.getRandomValues ?? ((array: ArrayBufferView) => array),
-  };
+  try {
+    const Crypto = require("expo-crypto");
+    return {
+      getRandomValues:
+        Crypto.getRandomValues ?? ((array: ArrayBufferView) => array),
+    };
+  } catch (err) {
+    throw new Error(
+      `${EXPO_CRYPTO_HINT}\nOriginal error: ${err instanceof Error ? err.message : String(err)}`,
+    );
+  }
 }
 
 /**

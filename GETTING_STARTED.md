@@ -4,6 +4,13 @@ This document explains **where the library lives**, **how to install and build i
 
 ---
 
+## Requirements
+
+- **Node:** 18 or newer (for building, testing, and Node runtime usage).
+- **Expo / React Native:** When using the Expo adapters (`createExpoKeyStorage`, `createExpoRandomValues`), your app must have `expo`, `expo-crypto`, `expo-secure-store`, and `react-native` installed (typically already present in an Expo project).
+
+---
+
 ## Where the library is
 
 - **Path**: This repository ([https://github.com/mryan-iadeptive/expo-crypto-lib](https://github.com/mryan-iadeptive/expo-crypto-lib)) is the library; the source lives at the repository root.
@@ -160,14 +167,15 @@ The library does **not** include user IDs or backend APIs. To get behavior like 
 
 ## API summary
 
-- **EnhancedRSAManager** (constructor: `keyStorage`, `randomValues`, optional `platform`)
+- **createRSAManager(options)** — Convenience factory. `createRSAManager({ platform: 'node' })` or `createRSAManager({ platform: 'expo', platformOS: Platform.OS })`. Returns an `EnhancedRSAManager`.
+- **EnhancedRSAManager** (constructor: `keyStorage`, `randomValues`, optional `platform`, optional `storageKeyPrefix` for multi-tenant storage key isolation)
   - Key lifecycle: `generateRSAKeypair`, `recoverKeysFromMnemonic`, `loadKeysFromSecureStorage`, `checkKeysInSecureStorage`, `saveKeysToSecureStorage`, `clearKeys`
   - Local: `encryptDataForLocalStorage`, `decryptDataFromLocalStorage`
   - Remote: `prepareDataForRemoteTransmission`, `decryptRemoteTransmissionData`
   - Raw RSA (string): `encryptWithRSA`, `decryptWithRSA`
   - Helpers: `getStoredMnemonic`, `getPrivateKey` / `getPublicKey` (protected), `hashWithSHA512_256`, `uint8ArrayToString`, etc.
 - **MnemonicManager** (static): `generateMnemonic(randomAdapter?)`, `mnemonicToSeed(mnemonic, passphrase?)`, `validateMnemonic(mnemonic)`
-- **Types**: `ProgressCallback`, `TransmissionPayload`, `ValidationResult`, `CryptoKeyPair`, `EnhancedRSAManagerOptions`
+- **Types**: `ProgressCallback`, `TransmissionPayload`, `ValidationResult`, `CryptoKeyPair`, `EnhancedRSAManagerOptions`, `CreateRSAManagerOptions`
 - **Adapters**: `IKeyStorage`, `IRandomValues`, `createExpoKeyStorage`, `createExpoRandomValues`, `createNodeKeyStorage`, `createNodeRandomValues`
 - **React Native entry**: `applyForgeOptimization`, `isOptimizationApplied`, `performanceTest` from `expo-crypto-lib/react-native`
 
@@ -176,5 +184,5 @@ The library does **not** include user IDs or backend APIs. To get behavior like 
 ## Dependencies
 
 - **Required**: `node-forge`, `base64-arraybuffer`.
-- **Optional (for Expo adapter)**: `expo-secure-store`, `expo-crypto`, `react-native` (peer).
+- **Optional (for Expo adapter)**: `expo-secure-store`, `expo-crypto`, `react-native` (peer). Install with `npx expo install expo-secure-store expo-crypto` if missing.
 - **Optional (for Forge optimization)**: `react-native-modpow` (only when using `expo-crypto-lib/react-native`).

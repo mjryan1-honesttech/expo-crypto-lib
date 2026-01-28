@@ -2,6 +2,10 @@
 
 Standalone **Expo module** providing hybrid RSA + AES encryption with mnemonic-based key derivation for React Native / Expo and Node.
 
+This is a **JavaScript-only module**; it has no native iOS/Android code and does not require prebuild hooks.
+
+**Requirements:** Node 18+ for local development and tests. For Expo/React Native apps: Expo SDK 50+ (or compatible), plus peer dependencies below.
+
 ## Install
 
 ```bash
@@ -16,22 +20,13 @@ npx expo install expo-crypto expo-secure-store
 
 ## Quick start
 
-### Expo / React Native
+### Expo / React Native (one-line manager)
 
 ```ts
-import {
-  EnhancedRSAManager,
-  createExpoKeyStorage,
-  createExpoRandomValues,
-} from 'expo-crypto-lib';
+import { createRSAManager } from 'expo-crypto-lib';
 import { Platform } from 'react-native';
 
-const manager = new EnhancedRSAManager({
-  keyStorage: createExpoKeyStorage(),
-  randomValues: createExpoRandomValues(),
-  platform: Platform.OS,
-});
-
+const manager = createRSAManager({ platform: 'expo', platformOS: Platform.OS });
 await manager.generateRSAKeypair(2048);
 const encrypted = await manager.encryptDataForLocalStorage(fileBytes);
 const decrypted = await manager.decryptDataFromLocalStorage(encrypted);
@@ -40,22 +35,15 @@ const decrypted = await manager.decryptDataFromLocalStorage(encrypted);
 ### Node (or tests)
 
 ```ts
-const {
-  EnhancedRSAManager,
-  createNodeKeyStorage,
-  createNodeRandomValues,
-} = require('expo-crypto-lib');
+const { createRSAManager } = require('expo-crypto-lib');
 
-const manager = new EnhancedRSAManager({
-  keyStorage: createNodeKeyStorage(),
-  randomValues: createNodeRandomValues(),
-  platform: 'node',
-});
-
+const manager = createRSAManager({ platform: 'node' });
 await manager.generateRSAKeypair(2048);
 const encrypted = await manager.encryptDataForLocalStorage(data);
 const decrypted = await manager.decryptDataFromLocalStorage(encrypted);
 ```
+
+You can also build the manager manually with `EnhancedRSAManager`, `createExpoKeyStorage` / `createNodeKeyStorage`, and `createExpoRandomValues` / `createNodeRandomValues` (see [GETTING_STARTED.md](./GETTING_STARTED.md)).
 
 ## Features
 
@@ -63,6 +51,16 @@ const decrypted = await manager.decryptDataFromLocalStorage(encrypted);
 - **Mnemonic** (24-word BIP39-like) generation and seed derivation for deterministic key recovery
 - **Adapters** for Expo (`expo-secure-store`, `expo-crypto`) and Node (in-memory + `crypto.getRandomValues`)
 - **Optional** React Native performance: use `expo-crypto-lib/react-native` and `applyForgeOptimization()` with `react-native-modpow`
+
+## Troubleshooting
+
+- **Module not found: expo-secure-store** (or **expo-crypto**): You are using the Expo adapters in an Expo/React Native app but the peer packages are not installed. Run:
+  ```bash
+  npx expo install expo-secure-store expo-crypto
+  ```
+  Import from `expo-crypto-lib` (the main entry), not from `expo-crypto-lib/react-native`, unless you specifically need `applyForgeOptimization`.
+
+- **Error in Node when using createExpoKeyStorage:** The Expo adapters are for React Native/Expo only. In Node or tests, use `createNodeKeyStorage()` and `createNodeRandomValues()`.
 
 ## Docs
 

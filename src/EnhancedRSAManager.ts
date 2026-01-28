@@ -17,21 +17,22 @@ import type {
   ValidationResult,
 } from "./types";
 
+const DEFAULT_STORAGE_KEY_PREFIX = "com.example.RSACryptoDemo";
+
 export interface EnhancedRSAManagerOptions {
   keyStorage: IKeyStorage;
   randomValues: IRandomValues;
   /** Optional platform label for metadata (e.g. 'ios', 'android', 'web', 'node'). */
   platform?: string;
+  /**
+   * Optional prefix for storage keys (privateKey, publicKey, mnemonic, metadata).
+   * Use different prefixes when multiple apps or tenants share the same storage backend.
+   * Default: "com.example.RSACryptoDemo"
+   */
+  storageKeyPrefix?: string;
 }
 
 export class EnhancedRSAManager {
-  private static readonly PRIVATE_KEY_TAG =
-    "com.example.RSACryptoDemo.privateKey";
-  private static readonly PUBLIC_KEY_TAG =
-    "com.example.RSACryptoDemo.publicKey";
-  private static readonly MNEMONIC_TAG = "com.example.RSACryptoDemo.mnemonic";
-  private static readonly METADATA_TAG = "com.example.RSACryptoDemo.metadata";
-
   static readonly MIN_KEY_SIZE = 2048;
   static readonly RECOMMENDED_KEY_SIZE = 3072;
   private static readonly PUBLIC_EXPONENT = 0x10001;
@@ -39,6 +40,10 @@ export class EnhancedRSAManager {
   private readonly storage: IKeyStorage;
   private readonly randomValues: IRandomValues;
   private readonly platform: string;
+  private readonly privateKeyTag: string;
+  private readonly publicKeyTag: string;
+  private readonly mnemonicTag: string;
+  private readonly metadataTag: string;
 
   publicKeyString: string = "";
   isKeyGenerated: boolean = false;
@@ -55,6 +60,12 @@ export class EnhancedRSAManager {
     this.storage = options.keyStorage;
     this.randomValues = options.randomValues;
     this.platform = options.platform ?? "node";
+    const prefix =
+      options.storageKeyPrefix ?? DEFAULT_STORAGE_KEY_PREFIX;
+    this.privateKeyTag = `${prefix}.privateKey`;
+    this.publicKeyTag = `${prefix}.publicKey`;
+    this.mnemonicTag = `${prefix}.mnemonic`;
+    this.metadataTag = `${prefix}.metadata`;
   }
 
   private getStorageLocation(): string {
@@ -147,14 +158,14 @@ export class EnhancedRSAManager {
 
       progressCallback?.("💾 Storing keys securely...");
       await Promise.all([
-        this.storage.setItem(EnhancedRSAManager.PRIVATE_KEY_TAG, privateKeyPem),
-        this.storage.setItem(EnhancedRSAManager.PUBLIC_KEY_TAG, publicKeyPem),
+        this.storage.setItem(this.privateKeyTag, privateKeyPem),
+        this.storage.setItem(this.publicKeyTag, publicKeyPem),
         this.storage.setItem(
-          EnhancedRSAManager.MNEMONIC_TAG,
+          this.mnemonicTag,
           this.mnemonicPhrase,
         ),
         this.storage.setItem(
-          EnhancedRSAManager.METADATA_TAG,
+          this.metadataTag,
           JSON.stringify(metadata),
         ),
       ]);
@@ -533,7 +544,7 @@ export class EnhancedRSAManager {
 
   protected async getPrivateKey(): Promise<string | null> {
     try {
-      return await this.storage.getItem(EnhancedRSAManager.PRIVATE_KEY_TAG);
+      return await this.storage.getItem(this.privateKeyTag);
     } catch (error) {
       console.error("❌ Failed to retrieve private key:", error);
       return null;
@@ -542,7 +553,7 @@ export class EnhancedRSAManager {
 
   protected async getPublicKey(): Promise<string | null> {
     try {
-      return await this.storage.getItem(EnhancedRSAManager.PUBLIC_KEY_TAG);
+      return await this.storage.getItem(this.publicKeyTag);
     } catch (error) {
       console.error("❌ Failed to retrieve public key:", error);
       return null;
@@ -551,7 +562,7 @@ export class EnhancedRSAManager {
 
   async getStoredMnemonic(): Promise<string | null> {
     try {
-      return await this.storage.getItem(EnhancedRSAManager.MNEMONIC_TAG);
+      return await this.storage.getItem(this.mnemonicTag);
     } catch (error) {
       return null;
     }
@@ -561,10 +572,10 @@ export class EnhancedRSAManager {
     try {
       const platformName = this.getStorageLocation();
       const [privateKey, publicKey, mnemonic, metadataStr] = await Promise.all([
-        this.storage.getItem(EnhancedRSAManager.PRIVATE_KEY_TAG),
-        this.storage.getItem(EnhancedRSAManager.PUBLIC_KEY_TAG),
-        this.storage.getItem(EnhancedRSAManager.MNEMONIC_TAG),
-        this.storage.getItem(EnhancedRSAManager.METADATA_TAG),
+        this.storage.getItem(this.privateKeyTag),
+        this.storage.getItem(this.publicKeyTag),
+        this.storage.getItem(this.mnemonicTag),
+        this.storage.getItem(this.metadataTag),
       ]);
       if (!privateKey || !publicKey || !mnemonic) return false;
       if (!this.validateKeyFormat(publicKey, privateKey)) return false;
@@ -608,10 +619,10 @@ export class EnhancedRSAManager {
   }> {
     try {
       const [privateKey, publicKey, mnemonic, metadataStr] = await Promise.all([
-        this.storage.getItem(EnhancedRSAManager.PRIVATE_KEY_TAG),
-        this.storage.getItem(EnhancedRSAManager.PUBLIC_KEY_TAG),
-        this.storage.getItem(EnhancedRSAManager.MNEMONIC_TAG),
-        this.storage.getItem(EnhancedRSAManager.METADATA_TAG),
+        this.storage.getItem(this.privateKeyTag),
+        this.storage.getItem(this.publicKeyTag),
+        this.storage.getItem(this.mnemonicTag),
+        this.storage.getItem(this.metadataTag),
       ]);
       const details = {
         privateKey: !!privateKey,
@@ -662,13 +673,13 @@ export class EnhancedRSAManager {
       const privateKey = await this.getPrivateKey();
       if (!privateKey) return false;
       await Promise.all([
-        this.storage.setItem(EnhancedRSAManager.PRIVATE_KEY_TAG, privateKey),
+        this.storage.setItem(this.privateKeyTag, privateKey),
         this.storage.setItem(
-          EnhancedRSAManager.PUBLIC_KEY_TAG,
+          this.publicKeyTag,
           this.publicKeyString,
         ),
         this.storage.setItem(
-          EnhancedRSAManager.MNEMONIC_TAG,
+          this.mnemonicTag,
           this.mnemonicPhrase,
         ),
       ]);
@@ -682,10 +693,10 @@ export class EnhancedRSAManager {
   async clearKeys(): Promise<void> {
     try {
       await Promise.all([
-        this.storage.removeItem(EnhancedRSAManager.PRIVATE_KEY_TAG),
-        this.storage.removeItem(EnhancedRSAManager.PUBLIC_KEY_TAG),
-        this.storage.removeItem(EnhancedRSAManager.MNEMONIC_TAG),
-        this.storage.removeItem(EnhancedRSAManager.METADATA_TAG),
+        this.storage.removeItem(this.privateKeyTag),
+        this.storage.removeItem(this.publicKeyTag),
+        this.storage.removeItem(this.mnemonicTag),
+        this.storage.removeItem(this.metadataTag),
       ]);
       this.publicKeyString = "";
       this.isKeyGenerated = false;

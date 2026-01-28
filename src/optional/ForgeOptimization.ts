@@ -29,7 +29,9 @@ export function applyForgeOptimization(): void {
       });
       return new forge.jsbn.BigInteger(result, 16);
     };
-    console.log("✅ Forge optimization (react-native-modpow) applied");
+    if (typeof (globalThis as unknown as { __DEV__?: boolean }).__DEV__ === "boolean" && (globalThis as unknown as { __DEV__?: boolean }).__DEV__) {
+      console.log("✅ Forge optimization (react-native-modpow) applied");
+    }
   } catch (error) {
     console.warn(
       "⚠️ Forge optimization skipped (react-native-modpow not available)",

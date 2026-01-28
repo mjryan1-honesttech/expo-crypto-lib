@@ -7,7 +7,7 @@
   "scripts": {
     "build": "tsc",
     "typecheck": "tsc --noEmit",
-    "lint": "eslint src --ext .ts",
+    "lint": "eslint src",
     "test": "jest",
     "ci": "npm run typecheck && npm run lint -- --max-warnings 0 && npm run test && npm run build",
     "prepublishOnly": "npm run build"
@@ -28,8 +28,11 @@
     "mnemonic",
     "crypto"
   ],
-  "author": "",
+  "author": "expo-crypto-lib contributors",
   "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/mryan-iadeptive/expo-crypto-lib.git"
@@ -46,13 +49,15 @@
     "expo": "*",
     "expo-crypto": "*",
     "expo-secure-store": "*",
-    "react-native": "*"
+    "react-native": "*",
+    "react-native-modpow": "*"
   },
   "peerDependenciesMeta": {
     "expo": { "optional": true },
     "expo-crypto": { "optional": true },
     "expo-secure-store": { "optional": true },
-    "react-native": { "optional": true }
+    "react-native": { "optional": true },
+    "react-native-modpow": { "optional": true }
   },
   "devDependencies": {
     "@types/node": "^22.0.0",

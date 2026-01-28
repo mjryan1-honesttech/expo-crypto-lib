@@ -7,6 +7,28 @@ on:
 jobs:
   check:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: ['18', '20', '22']
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+
+      - name: Install
+        run: npm ci
+
+      - name: Typecheck, lint, test, build
+        run: npm run ci
+        env:
+          CI: true
+
+  pack:
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
@@ -16,8 +38,13 @@ jobs:
           node-version: '20'
           cache: 'npm'
 
-      - name: Install
-        run: npm ci
+      - name: Install and build
+        run: npm ci && npm run build
 
-      - name: Typecheck, lint, test, build
-        run: npm run ci
+      - name: Verify published files (npm pack)
+        run: |
+          npm pack --dry-run 2>&1 | tee pack-list.txt
+          grep -q 'dist/' pack-list.txt || (echo "Missing dist/" && exit 1)
+          grep -q 'expo-module.config.json' pack-list.txt || (echo "Missing expo-module.config.json" && exit 1)
+          grep -q 'README.md' pack-list.txt || (echo "Missing README.md" && exit 1)
+          grep -q 'package.json' pack-list.txt || (echo "Missing package.json" && exit 1)
