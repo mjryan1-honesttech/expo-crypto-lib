@@ -6,7 +6,7 @@ This document explains **where the library lives**, **how to install and build i
 
 ## Where the library is
 
-- **Path**: The library lives in the **`hybrid-crypto-lib/`** subdirectory at the root of this repository.
+- **Path**: This repository ([https://github.com/mryan-iadeptive/expo-crypto-lib](https://github.com/mryan-iadeptive/expo-crypto-lib)) is the library; the source lives at the repository root.
 - **Contents**: Hybrid RSA + AES encryption (key generation, local and remote encrypt/decrypt), mnemonic generation and seed derivation, optional React Native performance optimization, and adapters for Expo and Node.
 
 ---
@@ -15,10 +15,11 @@ This document explains **where the library lives**, **how to install and build i
 
 ### From the repo (local / workspace)
 
-1. Go into the library folder and install dependencies:
+1. Clone the repo and at its root install dependencies:
 
    ```bash
-   cd hybrid-crypto-lib
+   git clone https://github.com/mryan-iadeptive/expo-crypto-lib.git
+   cd expo-crypto-lib
    npm install
    ```
 
@@ -28,12 +29,12 @@ This document explains **where the library lives**, **how to install and build i
    npm run build
    ```
 
-3. From another app in the same repo (e.g. the main app), reference the package by path:
+3. From another app (e.g. a sibling directory), reference the package by path:
 
-   - **npm / package.json**:
+   - **npm / package.json** (if your app is next to the clone, e.g. `my-app` and `expo-crypto-lib`):
      ```json
      "dependencies": {
-       "hybrid-crypto-lib": "file:../hybrid-crypto-lib"
+       "hybrid-crypto-lib": "file:../expo-crypto-lib"
      }
      ```
    - Then run `npm install` in the app and import from `hybrid-crypto-lib`.

@@ -69,6 +69,8 @@ const decrypted = await manager.decryptDataFromLocalStorage(encrypted);
 - [GETTING_STARTED.md](./GETTING_STARTED.md) — Install, build, usage examples, API summary, dependencies
 - [PUBLISHING.md](./PUBLISHING.md) — How to publish the package (npm, GitHub Packages)
 
+**Source**: [https://github.com/mryan-iadeptive/expo-crypto-lib](https://github.com/mryan-iadeptive/expo-crypto-lib)
+
 ## License
 
 MIT

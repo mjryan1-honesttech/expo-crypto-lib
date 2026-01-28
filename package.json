@@ -1,6 +1,6 @@
 {
   "name": "hybrid-crypto-lib",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "Hybrid RSA + AES encryption library with mnemonic-based key derivation",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -26,6 +26,14 @@
   ],
   "author": "",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mryan-iadeptive/expo-crypto-lib.git"
+  },
+  "homepage": "https://github.com/mryan-iadeptive/expo-crypto-lib#readme",
+  "bugs": {
+    "url": "https://github.com/mryan-iadeptive/expo-crypto-lib/issues"
+  },
   "dependencies": {
     "base64-arraybuffer": "^1.0.2",
     "node-forge": "^1.3.3"
