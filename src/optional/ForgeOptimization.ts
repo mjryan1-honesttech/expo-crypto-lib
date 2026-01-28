@@ -29,7 +29,11 @@ export function applyForgeOptimization(): void {
       });
       return new forge.jsbn.BigInteger(result, 16);
     };
-    if (typeof (globalThis as unknown as { __DEV__?: boolean }).__DEV__ === "boolean" && (globalThis as unknown as { __DEV__?: boolean }).__DEV__) {
+    if (
+      typeof (globalThis as unknown as { __DEV__?: boolean }).__DEV__ ===
+        "boolean" &&
+      (globalThis as unknown as { __DEV__?: boolean }).__DEV__
+    ) {
       console.log("✅ Forge optimization (react-native-modpow) applied");
     }
   } catch (error) {

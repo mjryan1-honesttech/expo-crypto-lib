@@ -72,3 +72,5 @@ You can also build the manager manually with `EnhancedRSAManager`, `createExpoKe
 ## License
 
 MIT
+
+Maintained by Matthew Ryan @ HonestTech

@@ -60,8 +60,7 @@ export class EnhancedRSAManager {
     this.storage = options.keyStorage;
     this.randomValues = options.randomValues;
     this.platform = options.platform ?? "node";
-    const prefix =
-      options.storageKeyPrefix ?? DEFAULT_STORAGE_KEY_PREFIX;
+    const prefix = options.storageKeyPrefix ?? DEFAULT_STORAGE_KEY_PREFIX;
     this.privateKeyTag = `${prefix}.privateKey`;
     this.publicKeyTag = `${prefix}.publicKey`;
     this.mnemonicTag = `${prefix}.mnemonic`;
@@ -160,14 +159,8 @@ export class EnhancedRSAManager {
       await Promise.all([
         this.storage.setItem(this.privateKeyTag, privateKeyPem),
         this.storage.setItem(this.publicKeyTag, publicKeyPem),
-        this.storage.setItem(
-          this.mnemonicTag,
-          this.mnemonicPhrase,
-        ),
-        this.storage.setItem(
-          this.metadataTag,
-          JSON.stringify(metadata),
-        ),
+        this.storage.setItem(this.mnemonicTag, this.mnemonicPhrase),
+        this.storage.setItem(this.metadataTag, JSON.stringify(metadata)),
       ]);
 
       this.keyStorageInfo = metadata;
@@ -674,14 +667,8 @@ export class EnhancedRSAManager {
       if (!privateKey) return false;
       await Promise.all([
         this.storage.setItem(this.privateKeyTag, privateKey),
-        this.storage.setItem(
-          this.publicKeyTag,
-          this.publicKeyString,
-        ),
-        this.storage.setItem(
-          this.mnemonicTag,
-          this.mnemonicPhrase,
-        ),
+        this.storage.setItem(this.publicKeyTag, this.publicKeyString),
+        this.storage.setItem(this.mnemonicTag, this.mnemonicPhrase),
       ]);
       return true;
     } catch (error) {

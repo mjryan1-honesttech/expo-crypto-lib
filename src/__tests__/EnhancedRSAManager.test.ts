@@ -98,7 +98,8 @@ describe("EnhancedRSAManager", () => {
 
     it("recoverKeysFromMnemonic returns false for invalid mnemonic", async () => {
       const manager = createManager();
-      const recovered = await manager.recoverKeysFromMnemonic("not valid words");
+      const recovered =
+        await manager.recoverKeysFromMnemonic("not valid words");
       expect(recovered).toBe(false);
     });
 
