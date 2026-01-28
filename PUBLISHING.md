@@ -129,6 +129,32 @@ You cannot republish the same version to npm; you must bump the version first.
 
 ---
 
+## Publishing via GitHub Actions (Trusted Publisher)
+
+Releases to the public npm registry can be done automatically by pushing a version tag. No npm token is needed; npm [Trusted Publishers](https://docs.npmjs.com/trusted-publishers) (OIDC) is configured for this repository with workflow filename `publish.yml`.
+
+### Prerequisites
+
+1. **Tag protection**  
+   Repository admins must add a **tag protection rule** for the pattern `v*` so that only users with **admin** or **maintain** permissions can create or delete version tags. This prevents contributors from pushing a `v*` tag and triggering a release.  
+   **Where to configure:** Repository **Settings** → **Code and automation** → **Tags** → **New rule** → Tag name pattern `v*`.  
+   See [GitHub: Configuring tag protection rules](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/managing-repository-settings/configuring-tag-protection-rules).
+
+2. **Only-from-main rule**  
+   Version tags (`v*`) must only be created from the `main` branch (the tagged commit must be on `main`). The publish workflow enforces this and will fail if the tag is not on `main`.
+
+### Release steps (for maintainers who can create `v*` tags)
+
+1. Ensure the version bump is on `main` (merge a PR or commit directly on `main`).
+2. From a clone with `main` checked out and up to date:
+   - Bump version: `npm version patch` (or `minor` / `major`).
+   - Push the version commit: `git push origin main`.
+3. Create and push the tag (use the same version as in `package.json`):  
+   `git tag v1.0.3 && git push origin v1.0.3`
+4. The **Publish Package** workflow runs automatically. It runs typecheck, lint, tests, and build, then publishes to npm. No npm token is required (OIDC).
+
+---
+
 ## Private registries
 
 For a private npm-compatible registry (e.g. Azure Artifacts, Verdaccio, Nexus):
