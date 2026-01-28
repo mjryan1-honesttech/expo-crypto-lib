@@ -21,12 +21,24 @@
     "LICENSE"
   ],
   "keywords": [
+    "expo",
+    "react-native",
+    "typescript",
+    "javascript",
+    "node-js",
+    "expo-module",
+    "cryptography",
     "rsa",
     "aes",
     "encryption",
-    "hybrid",
     "mnemonic",
-    "crypto"
+    "bip39",
+    "key-derivation",
+    "security",
+    "web-crypto",
+    "seed-phrase",
+    "cross-platform",
+    "hybrid-encryption"
   ],
   "author": "expo-crypto-lib contributors",
   "license": "MIT",
