@@ -2,12 +2,12 @@
  * Forge Performance Optimization for React Native
  *
  * Patches node-forge's BigInteger.modPow() with react-native-modpow for faster RSA key generation.
- * Import from 'hybrid-crypto-lib/react-native' and call applyForgeOptimization() at app startup.
+ * Import from 'expo-crypto-lib/react-native' and call applyForgeOptimization() at app startup.
  *
  * Requires optional peer dependency: react-native-modpow
  */
 
-import forge from 'node-forge';
+import forge from "node-forge";
 
 /**
  * Applies the react-native-modpow optimization to node-forge.
@@ -16,8 +16,12 @@ import forge from 'node-forge';
  */
 export function applyForgeOptimization(): void {
   try {
-    const modPow = require('react-native-modpow').default || require('react-native-modpow');
-    forge.jsbn.BigInteger.prototype.modPow = function nativeModPow(e: any, m: any) {
+    const modPow =
+      require("react-native-modpow").default || require("react-native-modpow");
+    forge.jsbn.BigInteger.prototype.modPow = function nativeModPow(
+      e: any,
+      m: any,
+    ) {
       const result = modPow({
         target: this.toString(16),
         value: e.toString(16),
@@ -25,9 +29,11 @@ export function applyForgeOptimization(): void {
       });
       return new forge.jsbn.BigInteger(result, 16);
     };
-    console.log('✅ Forge optimization (react-native-modpow) applied');
+    console.log("✅ Forge optimization (react-native-modpow) applied");
   } catch (error) {
-    console.warn('⚠️ Forge optimization skipped (react-native-modpow not available)');
+    console.warn(
+      "⚠️ Forge optimization skipped (react-native-modpow not available)",
+    );
   }
 }
 
@@ -36,9 +42,9 @@ export function applyForgeOptimization(): void {
  */
 export function isOptimizationApplied(): boolean {
   try {
-    const testBigInt = new forge.jsbn.BigInteger('2');
-    const testExponent = new forge.jsbn.BigInteger('3');
-    const testModulus = new forge.jsbn.BigInteger('5');
+    const testBigInt = new forge.jsbn.BigInteger("2");
+    const testExponent = new forge.jsbn.BigInteger("3");
+    const testModulus = new forge.jsbn.BigInteger("5");
     const result = testBigInt.modPow(testExponent, testModulus);
     return result != null;
   } catch {
@@ -70,7 +76,7 @@ export async function performanceTest(): Promise<{
       keySize,
     };
   } catch (error) {
-    console.error('Forge performance test failed:', error);
+    console.error("Forge performance test failed:", error);
     return { optimized: false, keyGenerationTime: -1, keySize };
   }
 }

@@ -3,7 +3,7 @@
  * Suitable for tests or server-side use without secure hardware storage.
  */
 
-import type { IKeyStorage, IRandomValues } from './types';
+import type { IKeyStorage, IRandomValues } from "./types";
 
 /**
  * In-memory key storage. Keys are not persisted across process restarts.
@@ -27,13 +27,16 @@ export function createNodeKeyStorage(): IKeyStorage {
  * Random values using Node's crypto.webcrypto or global crypto.
  */
 export function createNodeRandomValues(): IRandomValues {
-  const crypto = typeof globalThis !== 'undefined' && (globalThis as any).crypto
-    ? (globalThis as any).crypto
-    : typeof require !== 'undefined'
-      ? require('crypto').webcrypto ?? require('crypto')
-      : null;
+  const crypto =
+    typeof globalThis !== "undefined" && (globalThis as any).crypto
+      ? (globalThis as any).crypto
+      : typeof require !== "undefined"
+        ? (require("crypto").webcrypto ?? require("crypto"))
+        : null;
   if (!crypto || !crypto.getRandomValues) {
-    throw new Error('hybrid-crypto-lib: No getRandomValues available. In Node, use Node 19+ or polyfill crypto.getRandomValues.');
+    throw new Error(
+      "expo-crypto-lib: No getRandomValues available. In Node, use Node 19+ or polyfill crypto.getRandomValues.",
+    );
   }
   return {
     getRandomValues<T extends ArrayBufferView | null>(array: T): T {

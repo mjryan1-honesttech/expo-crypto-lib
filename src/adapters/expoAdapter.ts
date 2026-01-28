@@ -3,7 +3,7 @@
  * Requires peer dependencies: expo-secure-store, expo-crypto.
  */
 
-import type { IKeyStorage, IRandomValues } from './types';
+import type { IKeyStorage, IRandomValues } from "./types";
 
 function getExpoSecureStore(): {
   getItemAsync: (key: string) => Promise<string | null>;
@@ -11,7 +11,7 @@ function getExpoSecureStore(): {
   deleteItemAsync: (key: string) => Promise<void>;
 } {
   // Dynamic require so non-Expo consumers don't fail at load time
-  const SecureStore = require('expo-secure-store');
+  const SecureStore = require("expo-secure-store");
   return {
     getItemAsync: SecureStore.getItemAsync ?? SecureStore.getItem,
     setItemAsync: SecureStore.setItemAsync ?? SecureStore.setItem,
@@ -19,10 +19,13 @@ function getExpoSecureStore(): {
   };
 }
 
-function getExpoCrypto(): { getRandomValues: (array: ArrayBufferView) => ArrayBufferView } {
-  const Crypto = require('expo-crypto');
+function getExpoCrypto(): {
+  getRandomValues: (array: ArrayBufferView) => ArrayBufferView;
+} {
+  const Crypto = require("expo-crypto");
   return {
-    getRandomValues: Crypto.getRandomValues ?? ((array: ArrayBufferView) => array),
+    getRandomValues:
+      Crypto.getRandomValues ?? ((array: ArrayBufferView) => array),
   };
 }
 

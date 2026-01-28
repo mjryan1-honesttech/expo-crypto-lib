@@ -1,14 +1,14 @@
-# Publishing hybrid-crypto-lib so others can use it
+# Publishing expo-crypto-lib so others can use it
 
-This document describes **how to list and publish** the package so others can install it via npm or GitHub Packages.
+This document describes **how to list and publish** the package so others can install it via npm or GitHub Packages. Source: [https://github.com/mryan-iadeptive/expo-crypto-lib](https://github.com/mryan-iadeptive/expo-crypto-lib).
 
 ---
 
 ## Pre-publish checklist
 
-1. **Build**: From `hybrid-crypto-lib/` run `npm run build` and ensure `dist/` is up to date.
+1. **Build**: From the root of this repository run `npm run build` and ensure `dist/` is up to date.
 2. **Version**: Bump `version` in `package.json` (e.g. follow [Semantic Versioning](https://semver.org/)).
-3. **Access**: For **scoped** packages (`@scope/hybrid-crypto-lib`), confirm you have publish rights for that scope (npm org or GitHub org).
+3. **Access**: For **scoped** packages (`@scope/expo-crypto-lib`), confirm you have publish rights for that scope (npm org or GitHub org).
 4. **Auth**: Log in to the target registry (`npm login` or GitHub Packages token). For npm, 2FA is recommended.
 
 ---
@@ -17,16 +17,16 @@ This document describes **how to list and publish** the package so others can in
 
 ### 1. Package name
 
-- **Unscoped** (e.g. `hybrid-crypto-lib`): Ensure the name is not already taken on npm.
-- **Scoped** (e.g. `@your-org/hybrid-crypto-lib`): Set in `package.json`:
+- **Unscoped** (e.g. `expo-crypto-lib`): Ensure the name is not already taken on npm.
+- **Scoped** (e.g. `@your-org/expo-crypto-lib`): Set in `package.json`:
   ```json
-  "name": "@your-org/hybrid-crypto-lib"
+  "name": "@your-org/expo-crypto-lib"
   ```
   Scoped packages are private by default unless you pass `--access public`.
 
 ### 2. Publish
 
-From the `hybrid-crypto-lib/` directory:
+From the root of this repository:
 
 ```bash
 # If unscoped
@@ -43,9 +43,9 @@ Only files listed in `package.json` `"files"` (and always `package.json` and `RE
 After publish, others can install with:
 
 ```bash
-npm install hybrid-crypto-lib
+npm install expo-crypto-lib
 # or
-npm install @your-org/hybrid-crypto-lib
+npm install @your-org/expo-crypto-lib
 ```
 
 ---
@@ -54,10 +54,10 @@ npm install @your-org/hybrid-crypto-lib
 
 ### 1. Scope and registry
 
-- Use a scope that matches your GitHub org or user, e.g. `@myorg/hybrid-crypto-lib`.
+- Use a scope that matches your GitHub org or user, e.g. `@myorg/expo-crypto-lib`.
 - In `package.json`:
   ```json
-  "name": "@myorg/hybrid-crypto-lib",
+  "name": "@myorg/expo-crypto-lib",
   "publishConfig": {
     "registry": "https://npm.pkg.github.com"
   }
@@ -82,7 +82,7 @@ Or set in `.npmrc` (do not commit secrets; use env vars in CI):
 
 ### 3. Publish
 
-From `hybrid-crypto-lib/`:
+From the root of this repository:
 
 ```bash
 npm publish
@@ -99,7 +99,7 @@ They need to point npm at GitHub Packages for your scope. In the project that us
 Then:
 
 ```bash
-npm install @myorg/hybrid-crypto-lib
+npm install @myorg/expo-crypto-lib
 ```
 
 They must be logged in (or have auth) for `npm.pkg.github.com` if the package is private.
@@ -135,7 +135,7 @@ For a private npm-compatible registry (e.g. Azure Artifacts, Verdaccio, Nexus):
 
 1. Set `publishConfig.registry` (and optionally `publishConfig.scope`) in `package.json`, or configure registry in `.npmrc`.
 2. Ensure you are logged in (or have token) for that registry.
-3. Run `npm publish` from `hybrid-crypto-lib/`.
-4. Document for your team how to set the registry and auth so they can run `npm install @scope/hybrid-crypto-lib`.
+3. Run `npm publish` from the root of this repository.
+4. Document for your team how to set the registry and auth so they can run `npm install @scope/expo-crypto-lib`.
 
 No automation (e.g. GitHub Actions) is described here; this doc is limited to the steps to list and publish the package so others can use it.
