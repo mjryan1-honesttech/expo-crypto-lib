@@ -34,8 +34,16 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Typecheck, lint, test, and build
+      # Full test suite (includes slow RSA tests) runs only on Node 20 to keep CI fast.
+      - name: Typecheck, lint, test, and build (Node 20)
+        if: matrix.node-version == '20'
         run: npm run ci
+        env:
+          CI: true
+
+      - name: Typecheck, lint, and build (Node 18/22)
+        if: matrix.node-version != '20'
+        run: npm run typecheck && npm run lint -- --max-warnings 0 && npm run build
         env:
           CI: true
 
