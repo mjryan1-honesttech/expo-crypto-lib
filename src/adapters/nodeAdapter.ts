@@ -40,6 +40,7 @@ export function createNodeRandomValues(): IRandomValues {
   }
   return {
     getRandomValues<T extends ArrayBufferView | null>(array: T): T {
+      if (array == null) return array;
       return crypto.getRandomValues(array) as T;
     },
   };
