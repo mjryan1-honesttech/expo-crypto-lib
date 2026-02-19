@@ -1,5 +1,9 @@
 # expo-crypto-lib
 
+[![CI](https://github.com/mryan-iadeptive/expo-crypto-lib/actions/workflows/ci.yml/badge.svg)](https://github.com/mryan-iadeptive/expo-crypto-lib/actions/workflows/ci.yml)
+[![npm version](https://img.shields.io/npm/v/expo-crypto-lib.svg)](https://www.npmjs.com/package/expo-crypto-lib)
+[![Expo Compatible](https://img.shields.io/badge/Expo-Compatible-4630EB?style=flat-square&logo=EXPO&labelColor=f3f3f3&logoColor=000)](https://expo.dev)
+
 Standalone **Expo module** providing hybrid RSA + AES encryption with mnemonic-based key derivation for React Native / Expo and Node.
 
 This is a **JavaScript-only module**; it has no native iOS/Android code and does not require prebuild hooks.
