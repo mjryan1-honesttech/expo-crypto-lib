@@ -47,6 +47,22 @@ jobs:
         env:
           CI: true
 
+  security:
+    name: Security (audit)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - run: npm ci
+
+      - name: Audit dependencies
+        run: npm audit --audit-level=high
+
   pack:
     name: Verify npm pack (publish contents)
     runs-on: ubuntu-latest
