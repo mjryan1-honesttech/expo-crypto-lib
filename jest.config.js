@@ -4,5 +4,7 @@ const nodePreset = require('jest-expo/node/jest-preset');
 
 module.exports = {
   ...createJestPreset(nodePreset),
+  roots: ['<rootDir>/tests'],
+  testMatch: ['**/*.test.ts'],
   prettierPath: require.resolve('jest-snapshot-prettier'),
 };

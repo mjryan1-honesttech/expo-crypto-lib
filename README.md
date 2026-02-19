@@ -8,7 +8,7 @@ Standalone **Expo module** providing hybrid RSA + AES encryption with mnemonic-b
 
 This is a **JavaScript-only module**; it has no native iOS/Android code and does not require prebuild hooks.
 
-**Requirements:** Node 18+ for local development and tests. For Expo/React Native apps: Expo SDK 50+ (or compatible), plus peer dependencies below.
+**Requirements:** Node 20.19.4+ for local development and tests (use `nvm use` or `fnm use` with the included `.nvmrc`). For Expo/React Native apps: Expo SDK 50+ (or compatible), plus peer dependencies below.
 
 ## Install
 
@@ -56,6 +56,14 @@ You can also build the manager manually with `EnhancedRSAManager`, `createExpoKe
 - **Adapters** for Expo (`expo-secure-store`, `expo-crypto`) and Node (in-memory + `crypto.getRandomValues`)
 - **Optional** React Native performance: use `expo-crypto-lib/react-native` and `applyForgeOptimization()` with `react-native-modpow`
 
+## Platform support
+
+Runs on Expo (iOS, Android, web), Node (20+), and standalone web. Environment differences are handled by adapters:
+
+- **Expo / React Native** — `createExpoKeyStorage` and `createExpoRandomValues` use expo-secure-store and expo-crypto, with hardware-backed storage on devices.
+- **Node** — `createNodeKeyStorage` and `createNodeRandomValues` provide in-memory storage and Node's Web Crypto API for tests or server use.
+- **createRSAManager** — Pass `platform: 'expo'` or `platform: 'node'` to wire up the right adapters. On Expo, you can omit `platformOS` to auto-detect from React Native's `Platform.OS`.
+
 ## Troubleshooting
 
 - **Module not found: expo-secure-store** (or **expo-crypto**): You are using the Expo adapters in an Expo/React Native app but the peer packages are not installed. Run:
@@ -65,6 +73,11 @@ You can also build the manager manually with `EnhancedRSAManager`, `createExpoKe
   Import from `expo-crypto-lib` (the main entry), not from `expo-crypto-lib/react-native`, unless you specifically need `applyForgeOptimization`.
 
 - **Error in Node when using createExpoKeyStorage:** The Expo adapters are for React Native/Expo only. In Node or tests, use `createNodeKeyStorage()` and `createNodeRandomValues()`.
+
+- **Unsupported engine / EBADENGINE when running `npm install`:** The dev tooling (expo-module-scripts, Metro, React Native) requires Node 20.19.4 or newer. Upgrade with:
+  ```bash
+  nvm install 20 && nvm use 20   # or: fnm install 20 && fnm use 20
+  ```
 
 ## Docs
 

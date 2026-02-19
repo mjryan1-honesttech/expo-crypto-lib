@@ -8,3 +8,11 @@ npm-debug.log*
 .env.*
 !.env.example
 *.tsbuildinfo
+
+# Test & tooling
+coverage/
+.eslintcache
+pack-list.txt
+
+# IDE / editor
+.cursor/

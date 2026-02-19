@@ -11,15 +11,16 @@ If you discover a security vulnerability, **do not open a public issue.** Report
 ## How to get started
 
 1. **Fork the repository** and create your branch from `main`.
-2. **Install dependencies** in the repo root:
+2. **Use Node 20.19.4+** — The dev tooling requires Node 20. Use `nvm use` or `fnm use` with the included `.nvmrc`.
+3. **Install dependencies** in the repo root:
    ```bash
    npm install
    ```
-3. **Run the test suite** to confirm everything passes:
+4. **Run the test suite** to confirm everything passes:
    ```bash
    npm test
    ```
-4. **Test in a real environment:** Use a local Expo app and link this package (e.g. `"expo-crypto-lib": "file:../expo-crypto-lib"`) to verify behavior on iOS, Android, or web. See [GETTING_STARTED.md](GETTING_STARTED.md) for local development setup.
+5. **Test in a real environment:** Use a local Expo app and link this package (e.g. `"expo-crypto-lib": "file:../expo-crypto-lib"`) to verify behavior on iOS, Android, or web. See [GETTING_STARTED.md](GETTING_STARTED.md) for local development setup.
 
 ## Development standards
 

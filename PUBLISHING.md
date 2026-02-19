@@ -6,10 +6,11 @@ This document describes **how to list and publish** the package so others can in
 
 ## Pre-publish checklist
 
-1. **Build**: From the root of this repository run `npm run build` and ensure `dist/` is up to date.
-2. **Version**: Bump `version` in `package.json` (e.g. follow [Semantic Versioning](https://semver.org/)).
-3. **Access**: For **scoped** packages (`@scope/expo-crypto-lib`), confirm you have publish rights for that scope (npm org or GitHub org).
-4. **Auth**: Log in to the target registry (`npm login` or GitHub Packages token). For npm, 2FA is recommended.
+1. **Node**: Use Node 20.19.4+ (required by the dev tooling). Run `nvm use` or `fnm use` with the included `.nvmrc`.
+2. **Build**: From the root of this repository run `npm run build` and ensure `dist/` is up to date.
+3. **Version**: Bump `version` in `package.json` (e.g. follow [Semantic Versioning](https://semver.org/)).
+4. **Access**: For **scoped** packages (`@scope/expo-crypto-lib`), confirm you have publish rights for that scope (npm org or GitHub org).
+5. **Auth**: Log in to the target registry (`npm login` or GitHub Packages token). For npm, 2FA is recommended.
 
 ---
 

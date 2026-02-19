@@ -6,7 +6,7 @@ This document explains **where the library lives**, **how to install and build i
 
 ## Requirements
 
-- **Node:** 18 or newer (for building, testing, and Node runtime usage).
+- **Node:** 20.19.4 or newer (for building, testing, and Node runtime usage). Use `nvm use` or `fnm use` with the included `.nvmrc`.
 - **Expo / React Native:** When using the Expo adapters (`createExpoKeyStorage`, `createExpoRandomValues`), your app must have `expo`, `expo-crypto`, `expo-secure-store`, and `react-native` installed (typically already present in an Expo project).
 
 ---
@@ -22,11 +22,12 @@ This document explains **where the library lives**, **how to install and build i
 
 ### From the repo (local / workspace)
 
-1. Clone the repo and at its root install dependencies:
+1. Clone the repo and at its root install dependencies. **Node 20.19.4+ is required** (use `nvm use` or `fnm use` with the included `.nvmrc`):
 
    ```bash
    git clone https://github.com/mryan-iadeptive/expo-crypto-lib.git
    cd expo-crypto-lib
+   nvm use    # or: fnm use — uses .nvmrc to select Node 20+
    npm install
    ```
 

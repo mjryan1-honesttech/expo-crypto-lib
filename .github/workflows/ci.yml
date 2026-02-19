@@ -21,7 +21,7 @@ jobs:
     timeout-minutes: 20
     strategy:
       matrix:
-        node-version: ['18', '20', '22']
+        node-version: ['20', '22']
     steps:
       - uses: actions/checkout@v4
 
@@ -41,7 +41,7 @@ jobs:
         env:
           CI: true
 
-      - name: Typecheck, lint, and build (Node 18/22)
+      - name: Typecheck, lint, and build (Node 22)
         if: matrix.node-version != '20'
         run: npm run typecheck && npm run lint -- --max-warnings 0 && npm run build
         env:
