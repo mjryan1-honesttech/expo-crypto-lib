@@ -156,9 +156,9 @@ On React Native, RSA key generation can be slow. You can patch `node-forge` with
 - Get mnemonic after generation: `await manager.getStoredMnemonic()` (or use `manager.mnemonicPhrase` if you just generated).
 - Recover keys from mnemonic: `await manager.recoverKeysFromMnemonic(mnemonic)` (then keys are in storage again).
 
-### Building a “user-scoped” manager on top
+### Building a "user-scoped" manager on top
 
-The library does **not** include user IDs or backend APIs. To get behavior like “one key per user” and server key registration:
+The library does **not** include user IDs or backend APIs. To get behavior like "one key per user" and server key registration:
 
 1. Implement your own **key-storage adapter** that uses the same `getItem`/`setItem`/`removeItem` interface but with keys prefixed by `userId` (e.g. `nexus_user_keys_${userId}_private`).
 2. Create one `EnhancedRSAManager` per user (or one instance and swap storage), using that adapter and your `randomValues` (and optional `platform`).
