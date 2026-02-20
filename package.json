@@ -49,11 +49,7 @@
     "node": ">=20.19.4"
   },
   "overrides": {
-    "minimatch": "^10.2.2",
-    "ajv": "^8.18.0",
-    "eslint": {
-      "ajv": "6.12.6"
-    }
+    "minimatch": "^10.2.2"
   },
   "repository": {
     "type": "git",
