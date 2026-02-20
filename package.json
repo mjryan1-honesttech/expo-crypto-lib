@@ -16,8 +16,7 @@
     "dist",
     "expo-module.config.json",
     "README.md",
-    "GETTING_STARTED.md",
-    "PUBLISHING.md",
+    "docs",
     "LICENSE"
   ],
   "keywords": [

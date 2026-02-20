@@ -37,7 +37,7 @@ npm publish
 npm publish --access public
 ```
 
-Only files listed in `package.json` `"files"` (and always `package.json` and `README`) are included; the repo uses `dist`, `GETTING_STARTED.md`, and `PUBLISHING.md`.
+Only files listed in `package.json` `"files"` (and always `package.json` and `README`) are included; the repo uses `dist`, `docs`, and `LICENSE`.
 
 ### 3. Install for consumers
 
@@ -91,7 +91,7 @@ npm publish
 
 ### 4. Install for consumers
 
-They need to point npm at GitHub Packages for your scope. In the project that uses the package (or in user’s global `.npmrc`):
+They need to point npm at GitHub Packages for your scope. In the project that uses the package (or in user's global `.npmrc`):
 
 ```
 @myorg:registry=https://npm.pkg.github.com
@@ -114,7 +114,7 @@ They must be logged in (or have auth) for `npm.pkg.github.com` if the package is
 - **main**: `"dist/index.js"`.
 - **types**: `"dist/index.d.ts"`.
 - **exports**: Map `"."` to the main entry and `"./react-native"` to the optional RN entry (see current `package.json`).
-- **files**: `["dist", "GETTING_STARTED.md", "PUBLISHING.md"]` so published tarball includes built output and docs.
+- **files**: `["dist", "expo-module.config.json", "README.md", "docs", "LICENSE"]` so published tarball includes built output and docs.
 - **repository**, **license**, **author**: Optional but useful for consumers.
 - **publishConfig**: Only needed for non-default registry (e.g. GitHub Packages), as above.
 

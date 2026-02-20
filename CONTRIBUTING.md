@@ -20,7 +20,7 @@ If you discover a security vulnerability, **do not open a public issue.** Report
    ```bash
    npm test
    ```
-5. **Test in a real environment:** Use a local Expo app and link this package (e.g. `"expo-crypto-lib": "file:../expo-crypto-lib"`) to verify behavior on iOS, Android, or web. See [GETTING_STARTED.md](GETTING_STARTED.md) for local development setup.
+5. **Test in a real environment:** Use a local Expo app and link this package (e.g. `"expo-crypto-lib": "file:../expo-crypto-lib"`) to verify behavior on iOS, Android, or web. See [docs/getting-started.md](docs/getting-started.md) for local development setup.
 
 ## Development standards
 
@@ -34,7 +34,7 @@ If you discover a security vulnerability, **do not open a public issue.** Report
 1. **Link an issue:** Reference an open issue in the PR (e.g. `Fixes #123`).
 2. **Linting:** Run `npm run lint` and fix any reported issues. Use the repo’s ESLint config.
 3. **Typecheck and build:** Run `npm run typecheck` and `npm run build` locally.
-4. **Documentation:** For new features or API changes, update the README and/or GETTING_STARTED.md and add JSDoc where appropriate.
+4. **Documentation:** For new features or API changes, update the README and/or docs and add JSDoc where appropriate.
 5. **Review:** At least one maintainer must review and approve before merge. The `main` branch is protected; all changes land via pull request.
 
 ## Code of conduct
