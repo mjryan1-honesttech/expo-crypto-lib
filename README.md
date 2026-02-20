@@ -21,7 +21,7 @@ The key property is that, while you can **derive the same keys if you have the o
 In contrast to reversible encryption (where something encrypted can be decrypted with the correct key), one-way encryption in expo-crypto-lib is used for **secure key derivation and recovery**: the user's mnemonic is the only path to regenerating their encryption keys in case they lose their device or app data.
 
 ### I lost my mnemonic phrase! How can I recover it?
-If you did not save the 24 word phrase, there is no way to recover your lost encryption keypair. You'll need to regerenrate a new one and use the newly-generated keypair going forward. And this time, **keep your phrase safe!**
+If you did not save the 24 word phrase, there is no way to recover your lost encryption keypair. You'll need to regerenrate a new one and use the newly-generated keypair going forward. And this time, _<u>keep your phrase safe!</u>_
 
 ## Install
 
