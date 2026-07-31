@@ -1,0 +1,8 @@
+# The packed library, produced by `npm run sync`
+*.tgz
+
+# Installed with --no-save, so no lockfile entry to commit
+package-lock.json
+
+# Bundle output from `npm run bundle:*`
+.expo-export/
