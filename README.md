@@ -154,6 +154,8 @@ v1 had defects that could not be fixed while staying compatible:
 
 Because v1 phrases were not valid BIP39 and v1 seed derivation was unsound, there is no honest migration path that preserves either. v2 fixes all of the above and drops RSA, `node-forge`, and the `react-native-modpow` workaround entirely.
 
+[docs/v1-to-v2.md](docs/v1-to-v2.md) has the full breakdown: primitives, storage, envelope format, measured performance, the API migration map, and the remaining caveats.
+
 ## Troubleshooting
 
 - **Module not found: expo-secure-store / expo-crypto** — Run `npx expo install expo-secure-store expo-crypto`
@@ -165,6 +167,7 @@ Because v1 phrases were not valid BIP39 and v1 seed derivation was unsound, ther
 
 - [Getting started](docs/getting-started.md) — Install, build, API, dependencies
 - [Use cases](docs/use-cases.md) — Example scenarios with code
+- [v1 to v2](docs/v1-to-v2.md) — What changed, why, and the API migration map
 - [Publishing](docs/publishing.md) — npm, GitHub Packages
 
 **Source**: [https://github.com/mryan-iadeptive/expo-crypto-lib](https://github.com/mryan-iadeptive/expo-crypto-lib)
