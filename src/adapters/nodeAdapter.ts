@@ -24,24 +24,28 @@ export function createNodeKeyStorage(): IKeyStorage {
 }
 
 /**
- * Random values using Node's crypto.webcrypto or global crypto.
+ * Random values using the global Web Crypto object.
+ *
+ * Deliberately does not fall back to Node's built-in crypto module. Metro
+ * resolves require calls statically when bundling, so a Node built-in
+ * referenced anywhere reachable from the package entry point breaks React
+ * Native bundling outright — even on a branch that could never execute there.
+ * `globalThis.crypto` has been available since Node 19, below this package's
+ * Node 20.19.4 floor, so the fallback bought nothing.
  */
 export function createNodeRandomValues(): IRandomValues {
-  const crypto =
-    typeof globalThis !== "undefined" && (globalThis as any).crypto
-      ? (globalThis as any).crypto
-      : typeof require !== "undefined"
-        ? (require("crypto").webcrypto ?? require("crypto"))
-        : null;
-  if (!crypto || !crypto.getRandomValues) {
+  const crypto = (globalThis as any).crypto;
+  if (!crypto || typeof crypto.getRandomValues !== "function") {
     throw new Error(
-      "expo-crypto-lib: No getRandomValues available. In Node, use Node 19+ or polyfill crypto.getRandomValues.",
+      "expo-crypto-lib: No global crypto.getRandomValues available. Use Node 20.19.4+ or polyfill globalThis.crypto.",
     );
   }
+  // Web Crypto requires its own receiver.
+  const fill = crypto.getRandomValues.bind(crypto);
   return {
     getRandomValues<T extends ArrayBufferView | null>(array: T): T {
       if (array == null) return array;
-      return crypto.getRandomValues(array) as T;
+      return fill(array) as T;
     },
   };
 }

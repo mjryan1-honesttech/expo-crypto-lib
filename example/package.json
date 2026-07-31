@@ -1,0 +1,26 @@
+{
+  "name": "expo-crypto-lib-example",
+  "version": "1.0.0",
+  "private": true,
+  "main": "index.ts",
+  "scripts": {
+    "sync": "cd .. && npm run build && npm pack --pack-destination example && cd example && mv -f expo-crypto-lib-*.tgz expo-crypto-lib.tgz && npm install ./expo-crypto-lib.tgz --no-save",
+    "start": "expo start",
+    "android": "expo start --android",
+    "ios": "expo start --ios",
+    "bundle:android": "expo export --platform android --output-dir .expo-export",
+    "bundle:ios": "expo export --platform ios --output-dir .expo-export"
+  },
+  "dependencies": {
+    "expo": "~54.0.0",
+    "expo-crypto": "~15.0.9",
+    "expo-secure-store": "~15.0.8",
+    "expo-status-bar": "~3.0.9",
+    "react": "19.1.0",
+    "react-native": "0.81.5"
+  },
+  "devDependencies": {
+    "@types/react": "~19.1.0",
+    "typescript": "~5.9.2"
+  }
+}
