@@ -132,27 +132,53 @@ You cannot republish the same version to npm; you must bump the version first.
 
 ## Publishing via GitHub Actions (Trusted Publisher)
 
-Releases to the public npm registry can be done automatically by pushing a version tag. No npm token is needed; npm [Trusted Publishers](https://docs.npmjs.com/trusted-publishers) (OIDC) is configured for this repository with workflow filename `publish.yml`.
+No npm token is needed; npm [Trusted Publishers](https://docs.npmjs.com/trusted-publishers) (OIDC) is configured for this repository with workflow filename `publish.yml`. **Publishing must stay in that file** — the OIDC trust is bound to the filename, so moving the publish step to another workflow breaks it.
+
+There are two ways to release, both ending in the same `publish.yml`:
+
+| | Approve-to-release | Manual tag |
+| --- | --- | --- |
+| Trigger | CI succeeds on `main` with an untagged version | A maintainer pushes a `v*` tag |
+| Human step | Click **Review deployments → Approve** in the Actions UI | Create and push the tag |
+| Tag created by | `github-actions[bot]`, inside the approved job | The maintainer |
+
+### Approve-to-release (default)
+
+1. Bump the version on `main` (`npm version patch`, then push, or merge a PR that bumps it).
+2. **CI** runs. If it passes, **Publish Package** starts and its `Check for an unreleased version` job compares `package.json` against existing tags.
+   - Version already tagged → nothing happens, and nobody is asked to approve.
+   - Version not tagged → the `Release vX.Y.Z` job appears as **pending approval**.
+3. A reviewer opens the run, sees that every check passed and what changed, and clicks **Approve and deploy**.
+4. The approved job re-runs typecheck, lint, tests, and build, then creates and pushes `vX.Y.Z` and publishes to npm — all in one job.
+
+Nothing is published without that click, and a push that does not change the version never asks for one.
+
+**Why one job does both:** a tag pushed with `GITHUB_TOKEN` does not start new workflow runs, so CI cannot push a tag and rely on the tag-triggered job below to pick it up. Combined with the OIDC filename binding, that makes "tag and publish together, after approval" the only arrangement that works without a long-lived personal access token.
 
 ### Prerequisites
 
-1. **Tag protection**  
-   Repository admins must add a **tag protection rule** for the pattern `v*` so that only users with **admin** or **maintain** permissions can create or delete version tags. This prevents contributors from pushing a `v*` tag and triggering a release.  
-   **Where to configure:** Repository **Settings** → **Code and automation** → **Tags** → **New rule** → Tag name pattern `v*`.  
+1. **The `release` environment** — this *is* the approval gate.
+   **Settings** → **Environments** → **New environment** → name it exactly `release` → enable **Required reviewers** and add whoever may authorise a release.
+   Without required reviewers the environment still works but **will not pause**, so releases become fully automatic. Optionally restrict its deployment branches to `main`.
+   See [GitHub: Using environments for deployment](https://docs.github.com/en/actions/how-tos/deploy/configure-and-manage-deployments/manage-environments).
+
+2. **Tag rules must permit the bot.** If a `v*` tag protection rule or ruleset restricts who may create version tags, `github-actions[bot]` must be allowed to create them, or the approved job fails at the tag push. In a ruleset, add **Repository admin, or the GitHub Actions bot** to the bypass list.
+   **Where to configure:** **Settings** → **Rules** → **Rulesets** (or the older **Settings** → **Tags** rule).
    See [GitHub: Configuring tag protection rules](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/managing-repository-settings/configuring-tag-protection-rules).
 
-2. **Only-from-main rule**  
-   Version tags (`v*`) must only be created from the `main` branch (the tagged commit must be on `main`). The publish workflow enforces this and will fail if the tag is not on `main`.
+3. **Only-from-main rule** — version tags (`v*`) must only point at commits on `main`. Both paths enforce this and fail otherwise.
 
-### Release steps (for maintainers who can create `v*` tags)
+### Manual tag release (still supported)
 
-1. Ensure the version bump is on `main` (merge a PR or commit directly on `main`).
+1. Ensure the version bump is on `main`.
 2. From a clone with `main` checked out and up to date:
    - Bump version: `npm version patch` (or `minor` / `major`).
    - Push the version commit: `git push origin main`.
-3. Create and push the tag (use the same version as in `package.json`):  
+3. Create and push the tag (same version as `package.json`):
    `git tag v1.0.3 && git push origin v1.0.3`
-4. The **Publish Package** workflow runs automatically. It runs typecheck, lint, tests, and build, then publishes to npm. No npm token is required (OIDC).
+4. **Publish Package** runs typecheck, lint, tests, and build, then publishes.
+
+Tagging manually before the gated job is approved is safe: the tag now exists, so the version check reports nothing to release and no approval is requested. If both somehow raced, npm rejects the duplicate version.
 
 ---
 
