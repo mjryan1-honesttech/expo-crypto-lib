@@ -1,6 +1,6 @@
 # expo-crypto-lib
 
-[![CI](https://github.com/mryan-iadeptive/expo-crypto-lib/actions/workflows/ci.yml/badge.svg)](https://github.com/mryan-iadeptive/expo-crypto-lib/actions/workflows/ci.yml)
+[![CI](https://github.com/mjryan1-honesttech/expo-crypto-lib/actions/workflows/ci.yml/badge.svg)](https://github.com/mjryan1-honesttech/expo-crypto-lib/actions/workflows/ci.yml)
 [![npm version](https://img.shields.io/npm/v/expo-crypto-lib.svg)](https://www.npmjs.com/package/expo-crypto-lib)
 [![Expo Compatible](https://img.shields.io/badge/Expo-Compatible-4630EB?style=flat-square&logo=EXPO&labelColor=f3f3f3&logoColor=000)](https://expo.dev)
 
@@ -170,7 +170,7 @@ Because v1 phrases were not valid BIP39 and v1 seed derivation was unsound, ther
 - [v1 to v2](docs/v1-to-v2.md) — What changed, why, and the API migration map
 - [Publishing](docs/publishing.md) — npm, GitHub Packages
 
-**Source**: [https://github.com/mryan-iadeptive/expo-crypto-lib](https://github.com/mryan-iadeptive/expo-crypto-lib)
+**Source**: [https://github.com/mjryan1-honesttech/expo-crypto-lib](https://github.com/mjryan1-honesttech/expo-crypto-lib)
 
 ## License
 

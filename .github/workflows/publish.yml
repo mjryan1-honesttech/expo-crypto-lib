@@ -49,11 +49,17 @@ jobs:
             exit 1
           }
 
+      # No registry-url on purpose. With it set, setup-node always writes
+      # _authToken=${NODE_AUTH_TOKEN} into .npmrc; with no token supplied npm
+      # uses that literal placeholder instead of performing the OIDC exchange,
+      # and the registry answers E404. See actions/setup-node#1551. npm already
+      # defaults to registry.npmjs.org.
+      #
+      # Node 24 because trusted publishing requires Node >= 22.14.0.
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          registry-url: 'https://registry.npmjs.org'
+          node-version: '24'
           cache: 'npm'
 
       # Must match the npm that writes package-lock.json; npm 10 rejects it as
@@ -133,11 +139,17 @@ jobs:
             exit 1
           }
 
+      # No registry-url on purpose. With it set, setup-node always writes
+      # _authToken=${NODE_AUTH_TOKEN} into .npmrc; with no token supplied npm
+      # uses that literal placeholder instead of performing the OIDC exchange,
+      # and the registry answers E404. See actions/setup-node#1551. npm already
+      # defaults to registry.npmjs.org.
+      #
+      # Node 24 because trusted publishing requires Node >= 22.14.0.
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          registry-url: 'https://registry.npmjs.org'
+          node-version: '24'
           cache: 'npm'
 
       # Must match the npm that writes package-lock.json; npm 10 rejects it as
@@ -155,12 +167,24 @@ jobs:
         env:
           CI: true
 
-      - name: Create and push the version tag
+      # Publish first. The tag is a record that a release happened, so it comes
+      # after the irreversible step.
+      #
+      # Tagging first is what broke the 2.0.0 attempt: publish failed, the tag
+      # survived, and every retry path was then blocked — release-check skips a
+      # version that is already tagged, re-pushing an existing tag is a no-op,
+      # and re-running the job died on "tag already exists". If publishing
+      # succeeds and tagging fails, the fix is simply to push the tag by hand.
+      - name: Publish to npm
+        run: npm publish
+
+      - name: Tag the released commit
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git tag -a "v$VERSION" -m "Release v$VERSION"
+          if git rev-parse -q --verify "refs/tags/v$VERSION" >/dev/null; then
+            echo "::notice::Tag v$VERSION already exists locally; reusing it."
+          else
+            git tag -a "v$VERSION" -m "Release v$VERSION"
+          fi
           git push origin "v$VERSION"
-
-      - name: Publish to npm
-        run: npm publish

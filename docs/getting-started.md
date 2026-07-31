@@ -13,7 +13,7 @@ This document explains **where the library lives**, **how to install and build i
 
 ## Where the library is
 
-- **Path**: This repository ([https://github.com/mryan-iadeptive/expo-crypto-lib](https://github.com/mryan-iadeptive/expo-crypto-lib)) is the library; the source lives at the repository root.
+- **Path**: This repository ([https://github.com/mjryan1-honesttech/expo-crypto-lib](https://github.com/mjryan1-honesttech/expo-crypto-lib)) is the library; the source lives at the repository root.
 - **Contents**: X25519 + HPKE encryption (key derivation, at-rest and public-key encrypt/decrypt), BIP39 mnemonic generation and seed derivation, and adapters for Expo and Node.
 
 ---
@@ -25,7 +25,7 @@ This document explains **where the library lives**, **how to install and build i
 1. Clone the repo and at its root install dependencies. **Node 20.19.4+ is required** (use `nvm use` or `fnm use` with the included `.nvmrc`):
 
    ```bash
-   git clone https://github.com/mryan-iadeptive/expo-crypto-lib.git
+   git clone https://github.com/mjryan1-honesttech/expo-crypto-lib.git
    cd expo-crypto-lib
    nvm use    # or: fnm use — uses .nvmrc to select Node 20+
    npm install
