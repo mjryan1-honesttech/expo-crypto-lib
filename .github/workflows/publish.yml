@@ -30,6 +30,11 @@ jobs:
     # Tag-push path only; the gated path is release-check -> release below.
     if: github.event_name == 'push'
     runs-on: ubuntu-latest
+    # Same approval gate as the automated path. github-actions[bot] cannot be
+    # added to a ruleset bypass list, so restricting who may create v* tags
+    # would break the automated release. Gating publication instead means a
+    # v* tag on its own publishes nothing until a reviewer approves it.
+    environment: release
     steps:
       - name: Checkout
         uses: actions/checkout@v4

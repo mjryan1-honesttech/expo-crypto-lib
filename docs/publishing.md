@@ -157,16 +157,26 @@ Nothing is published without that click, and a push that does not change the ver
 
 ### Prerequisites
 
-1. **The `release` environment** — this *is* the approval gate.
+1. **The `release` environment** — this *is* the approval gate, and it protects both release paths.
    **Settings** → **Environments** → **New environment** → name it exactly `release` → enable **Required reviewers** and add whoever may authorise a release.
-   Without required reviewers the environment still works but **will not pause**, so releases become fully automatic. Optionally restrict its deployment branches to `main`.
-   See [GitHub: Using environments for deployment](https://docs.github.com/en/actions/how-tos/deploy/configure-and-manage-deployments/manage-environments).
+   - Up to 6 users or teams may be listed, and **only one of them needs to approve** for the job to proceed. There is no built-in "two of three" — for that, chain two jobs on two environments with one reviewer each.
+   - **Prevent self-review** stops whoever triggered the run from approving their own release.
+   - An optional **wait timer** delays the job even after approval.
+   - Without required reviewers the environment still works but **never pauses**, so releases become fully automatic on every version bump. Optionally restrict its deployment branches to `main`.
 
-2. **Tag rules must permit the bot.** If a `v*` tag protection rule or ruleset restricts who may create version tags, `github-actions[bot]` must be allowed to create them, or the approved job fails at the tag push. In a ruleset, add **Repository admin, or the GitHub Actions bot** to the bypass list.
-   **Where to configure:** **Settings** → **Rules** → **Rulesets** (or the older **Settings** → **Tags** rule).
-   See [GitHub: Configuring tag protection rules](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/managing-repository-settings/configuring-tag-protection-rules).
+   See [GitHub: Managing environments](https://docs.github.com/en/actions/how-tos/deploy/configure-and-manage-deployments/manage-environments).
+
+2. **Do not restrict who may *create* `v*` tags.** `github-actions[bot]` **cannot** be added to a ruleset bypass list — eligible bypass actors are repository/organization/enterprise admin roles, the maintain/write roles, non-secret teams, GitHub Apps, and Dependabot. System bots are not bypassable. A ruleset that restricts tag creation therefore blocks the approved release job at its tag push.
+
+   The `release` environment replaces that protection where it matters: a `v*` tag created by anyone publishes **nothing** until a reviewer approves the job. Protecting tag *deletion* is still fine and does not interfere.
+
+   If you specifically need tag-name protection as well, the supported route is a **GitHub App** — create one, add it to the ruleset bypass list, and mint a token with [`actions/create-github-app-token`](https://github.com/actions/create-github-app-token) for the tag push. That is more moving parts (App registration, install, App ID and private key as secrets) for a guarantee the environment gate already provides.
+
+   **Where to check what exists today:** **Settings** → **Rules** → **Rulesets**, and the older **Settings** → **Tags**.
 
 3. **Only-from-main rule** — version tags (`v*`) must only point at commits on `main`. Both paths enforce this and fail otherwise.
+
+> If you ever pin an **environment** in the npm Trusted Publisher configuration, it must be `release`, since both publishing jobs now run in that environment.
 
 ### Manual tag release (still supported)
 
