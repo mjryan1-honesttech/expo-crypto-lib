@@ -7,9 +7,18 @@ This is not the same thing as [`example/`](../example), which is a non-interacti
 ## Run it
 
 ```bash
-npm install
-npm start         # then scan the QR with the Expo Go app
+./dev.sh start        # prints a QR code; scan it with Expo Go, Ctrl-C to stop
 ```
+
+It installs dependencies on first run. Any other flags go straight through to `expo start`:
+
+```bash
+./dev.sh start --tunnel   # phone and laptop cannot see each other on the LAN
+./dev.sh start --clear    # start with an empty Metro cache
+./dev.sh stop             # kill a server that outlived its terminal
+```
+
+Scan with **Expo Go's own scanner**, not the system camera, and keep the phone on the same network as the dev server.
 
 `expo-crypto-lib` is an ordinary dependency here, installed from npm — so this app is wired up exactly the way yours would be. Nothing about it is special-cased for living inside the library's own repository.
 
