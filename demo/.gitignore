@@ -1,0 +1,2 @@
+# Bundle output from `npm run bundle:*`
+.expo-export/
