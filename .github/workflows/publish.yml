@@ -175,8 +175,34 @@ jobs:
       # version that is already tagged, re-pushing an existing tag is a no-op,
       # and re-running the job died on "tag already exists". If publishing
       # succeeds and tagging fails, the fix is simply to push the tag by hand.
+      # Trusted publishing failures surface as a misleading E404 or ENEEDAUTH
+      # rather than a real diagnostic (npm/cli#9088), so print the claims npm
+      # will present and compare them field by field against the Trusted
+      # Publisher configuration on npmjs.com. Only claim names are printed,
+      # never the token itself.
+      - name: OIDC diagnostics
+        run: |
+          echo "node $(node --version), npm $(npm --version)"
+          if [ -z "${ACTIONS_ID_TOKEN_REQUEST_URL:-}" ]; then
+            echo "::error::No OIDC token endpoint in the environment; id-token: write is not in effect."
+            exit 1
+          fi
+          echo "OIDC token endpoint: present"
+          curl -sSf -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
+            "$ACTIONS_ID_TOKEN_REQUEST_URL" \
+            | node -e '
+              let d = "";
+              process.stdin.on("data", (c) => (d += c)).on("end", () => {
+                const payload = JSON.parse(d).value.split(".")[1];
+                const claims = JSON.parse(Buffer.from(payload, "base64url").toString());
+                for (const k of ["repository","repository_owner","workflow_ref","job_workflow_ref","environment","ref","event_name","aud"]) {
+                  console.log("  " + k + ": " + (claims[k] ?? "(absent)"));
+                }
+              });
+            '
+
       - name: Publish to npm
-        run: npm publish
+        run: npm publish --loglevel verbose
 
       - name: Tag the released commit
         run: |
