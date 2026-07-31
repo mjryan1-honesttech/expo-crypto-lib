@@ -50,7 +50,8 @@
     "node": ">=20.19.4"
   },
   "overrides": {
-    "minimatch": "^10.2.2"
+    "minimatch": "^10.2.2",
+    "postcss": "^8.5.25"
   },
   "repository": {
     "type": "git",
