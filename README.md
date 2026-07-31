@@ -45,6 +45,23 @@ To share entries between **your own** apps on iOS, pass `accessGroup` (requires 
 
 You cannot. Without the 24-word phrase there is no way to regenerate the keypair. Generate a new one and use it going forward — and this time, _<u>keep your phrase safe!</u>_
 
+## See it running
+
+From the [`demo/`](demo) app on a physical Android device in Expo Go — no native build, no prebuild.
+
+| `generate()` | `encryptLocal()` | `encryptFor()` |
+|:--:|:--:|:--:|
+| ![Identity tab showing the derived public key and the 24-word recovery phrase](demo/screenshots/identity-generated.jpg) | ![At rest tab showing a 54-byte envelope and the recovered plaintext](demo/screenshots/at-rest.jpg) | ![To a key tab showing an HPKE envelope opened by the recipient](demo/screenshots/to-a-key.jpg) |
+| A 24-word BIP39 phrase, returned once and never written to storage, deriving an X25519 keypair. | `my api token` sealed into 54 bytes — 42 of them envelope overhead — then opened again. | HPKE to a recipient's public key: 76 bytes, no handshake and no round trip. |
+
+Three more, including the empty state and the two-device exchange, are in [`demo/screenshots/`](demo/screenshots). Every key and phrase visible in them is a throwaway demo value.
+
+Run it yourself:
+
+```bash
+cd demo && ./dev.sh start   # prints a QR code; scan it with Expo Go
+```
+
 ## Install
 
 ```bash
