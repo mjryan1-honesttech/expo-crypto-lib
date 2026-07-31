@@ -1,9 +1,8 @@
 /**
- * expo-crypto-lib – Hybrid RSA + AES encryption with mnemonic-based key derivation.
+ * expo-crypto-lib – X25519 + HPKE encryption with BIP39 key recovery.
  */
 
-import { EnhancedRSAManager } from "./EnhancedRSAManager";
-import type { EnhancedRSAManagerOptions } from "./EnhancedRSAManager";
+import { CryptoManager } from "./CryptoManager";
 import {
   createExpoKeyStorage,
   createExpoRandomValues,
@@ -13,59 +12,65 @@ import {
   createNodeRandomValues,
 } from "./adapters/nodeAdapter";
 
-export { EnhancedRSAManager } from "./EnhancedRSAManager";
-export type { EnhancedRSAManagerOptions } from "./EnhancedRSAManager";
-export { MnemonicManager } from "./MnemonicManager";
+export { CryptoManager } from "./CryptoManager";
+export type { CryptoManagerOptions } from "./CryptoManager";
 
-export type {
-  CryptoKeyPair,
-  ProgressCallback,
-  TransmissionPayload,
-  ValidationResult,
-} from "./types";
+export { CryptoError } from "./errors";
+export type { CryptoErrorCode } from "./errors";
+
+export { MODE_HPKE, MODE_LOCAL, VERSION, readMode } from "./envelope";
+
+export {
+  deriveIdentityKeyPair,
+  deriveLocalKey,
+  generateMnemonicPhrase,
+  mnemonicToSeed,
+  validateMnemonicPhrase,
+} from "./kdf";
+export type { IdentityKeyPair } from "./kdf";
 
 export type { IKeyStorage, IRandomValues } from "./adapters/types";
 export {
   createExpoKeyStorage,
   createExpoRandomValues,
 } from "./adapters/expoAdapter";
+export type { ExpoKeyStorageOptions } from "./adapters/expoAdapter";
 export {
   createNodeKeyStorage,
   createNodeRandomValues,
 } from "./adapters/nodeAdapter";
 
-/** Options for the convenience factory. Use platform 'node' in Node or tests; use 'expo' in React Native/Expo (pass platformOS from Platform.OS). */
-export type CreateRSAManagerOptions =
-  | { platform: "node" }
-  | { platform: "expo"; platformOS?: string };
+/**
+ * Options for the convenience factory. Use platform 'node' in Node or tests;
+ * use 'expo' in React Native/Expo.
+ */
+export type CreateCryptoManagerOptions =
+  | { platform: "node"; storageKeyPrefix?: string }
+  | {
+      platform: "expo";
+      storageKeyPrefix?: string;
+      /** Passed through to expo-secure-store, e.g. { requireAuthentication: true }. */
+      storageOptions?: import("./adapters/expoAdapter").ExpoKeyStorageOptions;
+    };
 
 /**
- * One-line factory: creates an EnhancedRSAManager with the right adapters for the given platform.
- * - Node / tests: createRSAManager({ platform: 'node' })
- * - Expo / React Native: createRSAManager({ platform: 'expo', platformOS: Platform.OS }) or createRSAManager({ platform: 'expo' }) to auto-detect from react-native
+ * One-line factory: builds a CryptoManager with the right adapters.
+ * - Node / tests: createCryptoManager({ platform: 'node' })
+ * - Expo / React Native: createCryptoManager({ platform: 'expo' })
  */
-export function createRSAManager(
-  options: CreateRSAManagerOptions,
-): InstanceType<typeof EnhancedRSAManager> {
+export function createCryptoManager(
+  options: CreateCryptoManagerOptions,
+): CryptoManager {
   if (options.platform === "node") {
-    return new EnhancedRSAManager({
+    return new CryptoManager({
       keyStorage: createNodeKeyStorage(),
       randomValues: createNodeRandomValues(),
-      platform: "node",
+      storageKeyPrefix: options.storageKeyPrefix,
     });
   }
-  let platformOS = options.platformOS;
-  if (platformOS == null) {
-    try {
-      const RN = require("react-native");
-      platformOS = RN.Platform?.OS ?? "react-native";
-    } catch {
-      platformOS = "react-native";
-    }
-  }
-  return new EnhancedRSAManager({
-    keyStorage: createExpoKeyStorage(),
+  return new CryptoManager({
+    keyStorage: createExpoKeyStorage(options.storageOptions),
     randomValues: createExpoRandomValues(),
-    platform: platformOS,
+    storageKeyPrefix: options.storageKeyPrefix,
   });
 }

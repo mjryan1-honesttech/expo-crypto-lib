@@ -7,14 +7,14 @@ This document explains **where the library lives**, **how to install and build i
 ## Requirements
 
 - **Node:** 20.19.4 or newer (for building, testing, and Node runtime usage). Use `nvm use` or `fnm use` with the included `.nvmrc`.
-- **Expo / React Native:** When using the Expo adapters (`createExpoKeyStorage`, `createExpoRandomValues`), your app must have `expo`, `expo-crypto`, `expo-secure-store`, and `react-native` installed (typically already present in an Expo project).
+- **Expo / React Native:** React Native 0.70+ / Expo SDK 47+ with the **Hermes** engine (X25519 requires `BigInt`). When using the Expo adapters (`createExpoKeyStorage`, `createExpoRandomValues`), your app must have `expo`, `expo-crypto`, `expo-secure-store`, and `react-native` installed (typically already present in an Expo project).
 
 ---
 
 ## Where the library is
 
 - **Path**: This repository ([https://github.com/mryan-iadeptive/expo-crypto-lib](https://github.com/mryan-iadeptive/expo-crypto-lib)) is the library; the source lives at the repository root.
-- **Contents**: Hybrid RSA + AES encryption (key generation, local and remote encrypt/decrypt), mnemonic generation and seed derivation, optional React Native performance optimization, and adapters for Expo and Node.
+- **Contents**: X25519 + HPKE encryption (key derivation, at-rest and public-key encrypt/decrypt), BIP39 mnemonic generation and seed derivation, and adapters for Expo and Node.
 
 ---
 
@@ -55,135 +55,142 @@ If the package is published to npm (or another registry), install it as usual:
 npm install expo-crypto-lib
 ```
 
-Then import from `expo-crypto-lib` (and optionally `expo-crypto-lib/react-native`).
+Then import from `expo-crypto-lib`.
 
 ---
 
 ## How to use it
 
-The library is **environment-agnostic**: you must pass in a **key-storage adapter** and a **random-values adapter**. Bundled adapters:
+The library is **environment-agnostic**: you pass in a **key-storage adapter** and a **random-values adapter**. Bundled adapters:
 
 - **Expo/React Native**: `createExpoKeyStorage`, `createExpoRandomValues` (require `expo-secure-store` and `expo-crypto` as peer dependencies).
 - **Node (or tests)**: `createNodeKeyStorage`, `createNodeRandomValues` (in-memory storage; random from Node `crypto`).
+
+All randomness flows through the adapter, so no global `crypto` or WebCrypto polyfill is needed in React Native.
 
 ### Minimal example (Node or test)
 
 ```ts
 const {
-  EnhancedRSAManager,
+  CryptoManager,
   createNodeKeyStorage,
   createNodeRandomValues,
 } = require('expo-crypto-lib');
 
-const storage = createNodeKeyStorage();
-const random = createNodeRandomValues();
-
-const manager = new EnhancedRSAManager({
-  keyStorage: storage,
-  randomValues: random,
-  platform: 'node',
+const manager = new CryptoManager({
+  keyStorage: createNodeKeyStorage(),
+  randomValues: createNodeRandomValues(),
 });
 
 async function run() {
-  const ok = await manager.generateRSAKeypair(2048);
-  if (!ok) throw new Error('Key generation failed');
+  const mnemonic = await manager.generate();
+  console.log('save this phrase:', mnemonic); // returned once, never stored
 
   const data = new TextEncoder().encode('secret message');
-  const encrypted = await manager.encryptDataForLocalStorage(data);
-  if (!encrypted) throw new Error('Encryption failed');
-
-  const decrypted = await manager.decryptDataFromLocalStorage(encrypted);
-  console.log(new TextDecoder().decode(decrypted)); // 'secret message'
+  const encrypted = manager.encryptLocal(data);
+  console.log(new TextDecoder().decode(manager.decryptLocal(encrypted)));
 }
 run();
 ```
 
 ### Minimal example (Expo / React Native)
 
-Install peer dependencies in your app: `expo-secure-store`, `expo-crypto`, `react-native`. Then:
+Install peer dependencies in your app: `expo-secure-store`, `expo-crypto`. Then:
 
 ```ts
-import {
-  EnhancedRSAManager,
-  createExpoKeyStorage,
-  createExpoRandomValues,
-} from 'expo-crypto-lib';
-import { Platform } from 'react-native';
+import { createCryptoManager } from 'expo-crypto-lib';
 
-const storage = createExpoKeyStorage();
-const random = createExpoRandomValues();
+const manager = createCryptoManager({ platform: 'expo' });
 
-const manager = new EnhancedRSAManager({
-  keyStorage: storage,
-  randomValues: random,
-  platform: Platform.OS,
-});
+// First run: create an identity and show the phrase once.
+if (!(await manager.load())) {
+  const mnemonic = await manager.generate();
+  displayBackupPhrase(mnemonic);
+}
 
-// Generate keys (e.g. on first run)
-await manager.generateRSAKeypair(2048);
-
-// Encrypt / decrypt for local storage
-const encrypted = await manager.encryptDataForLocalStorage(fileBytes);
-const decrypted = await manager.decryptDataFromLocalStorage(encrypted);
+const encrypted = manager.encryptLocal(fileBytes);
+const decrypted = manager.decryptLocal(encrypted);
 ```
 
-### Optional: React Native performance (Forge optimization)
+### Gating keys behind biometrics
 
-On React Native, RSA key generation can be slow. You can patch `node-forge` with a native `modPow` implementation **before** any crypto use:
+Options are passed straight through to `expo-secure-store`:
 
-1. Install the optional peer dependency: `react-native-modpow`.
-2. At app startup (e.g. in your root component or entry file):
+```ts
+import * as SecureStore from 'expo-secure-store';
 
-   ```ts
-   import { applyForgeOptimization } from 'expo-crypto-lib/react-native';
+const manager = createCryptoManager({
+  platform: 'expo',
+  storageOptions: {
+    requireAuthentication: true,
+    authenticationPrompt: 'Unlock your encryption keys',
+    keychainAccessible: SecureStore.WHEN_UNLOCKED_THIS_DEVICE_ONLY,
+  },
+});
+```
 
-   applyForgeOptimization();
-   ```
+`accessGroup` shares entries between **your own** iOS apps (needs a matching keychain-sharing entitlement). Android has no cross-app equivalent.
 
-3. Then create and use `EnhancedRSAManager` as above. If `react-native-modpow` is not installed, `applyForgeOptimization()` is a no-op.
+Use `loadPublicKey()` to read the public key without touching the seed — handy when the seed is behind a biometric prompt and you only need to publish the public key.
 
-### Remote transmission
+### Encrypting to another party
 
-- **Encrypt** (prepare payload to send):  
-  `encryptedPayloadBytes = await manager.prepareDataForRemoteTransmission(data)`
-- **Decrypt** (on receiver):  
-  Parse the payload JSON, then  
-  `decrypted = await manager.decryptRemoteTransmissionData(encrypted_key, encrypted_data)`
+```ts
+const sealed = manager.encryptFor(recipientPublicKey, bytes); // 32 raw bytes
+const opened = recipientManager.decrypt(sealed);
+```
+
+The envelope is HPKE (RFC 9180) base mode with suite `DHKEM(X25519, HKDF-SHA256) / HKDF-SHA256 / ChaCha20Poly1305`, so a backend can decrypt it with any standard HPKE library.
 
 ### Mnemonic and key recovery
 
-- Generate mnemonic and keys: `await manager.generateRSAKeypair(2048)` (mnemonic is stored with keys).
-- Get mnemonic after generation: `await manager.getStoredMnemonic()` (or use `manager.mnemonicPhrase` if you just generated).
-- Recover keys from mnemonic: `await manager.recoverKeysFromMnemonic(mnemonic)` (then keys are in storage again).
+- Generate an identity: `const mnemonic = await manager.generate()` — the phrase is returned once and **never written to storage**.
+- Recover on another device: `await manager.recover(mnemonic)` — throws `CryptoError` with code `INVALID_MNEMONIC` if the BIP39 checksum fails.
+- Load an existing identity: `await manager.load()` — returns `false` when nothing is stored.
+- A passphrase is supported as a second factor: `generate(passphrase)` / `recover(mnemonic, passphrase)`. The same phrase with a different passphrase is a different identity.
 
 ### Building a "user-scoped" manager on top
 
-The library does **not** include user IDs or backend APIs. To get behavior like "one key per user" and server key registration:
+The library does **not** include user IDs or backend APIs. For "one key per user" plus server key registration:
 
-1. Implement your own **key-storage adapter** that uses the same `getItem`/`setItem`/`removeItem` interface but with keys prefixed by `userId` (e.g. `nexus_user_keys_${userId}_private`).
-2. Create one `EnhancedRSAManager` per user (or one instance and swap storage), using that adapter and your `randomValues` (and optional `platform`).
-3. Keep **server key registration / vault API** in your app: after generating or recovering keys, call your backend to register the public key and get a `key_id`; store that in your app state or storage. The library stays agnostic of HTTP and backend.
+1. Pass `storageKeyPrefix: \`user_${userId}\`` , or implement a **key-storage adapter** using the same `getItem`/`setItem`/`removeItem` interface with user-prefixed keys.
+2. Create one `CryptoManager` per user (or one instance and swap storage).
+3. Keep **server key registration** in your app: after `generate()` or `recover()`, send `manager.publicKeyBase64` to your backend and store whatever key id it returns. The library stays agnostic of HTTP and backends.
 
 ---
 
 ## API summary
 
-- **createRSAManager(options)** — Convenience factory. `createRSAManager({ platform: 'node' })` or `createRSAManager({ platform: 'expo', platformOS: Platform.OS })`. Returns an `EnhancedRSAManager`.
-- **EnhancedRSAManager** (constructor: `keyStorage`, `randomValues`, optional `platform`, optional `storageKeyPrefix` for multi-tenant storage key isolation)
-  - Key lifecycle: `generateRSAKeypair`, `recoverKeysFromMnemonic`, `loadKeysFromSecureStorage`, `checkKeysInSecureStorage`, `saveKeysToSecureStorage`, `clearKeys`
-  - Local: `encryptDataForLocalStorage`, `decryptDataFromLocalStorage`
-  - Remote: `prepareDataForRemoteTransmission`, `decryptRemoteTransmissionData`
-  - Raw RSA (string): `encryptWithRSA`, `decryptWithRSA`
-  - Helpers: `getStoredMnemonic`, `getPrivateKey` / `getPublicKey` (protected), `hashWithSHA512_256`, `uint8ArrayToString`, etc.
-- **MnemonicManager** (static): `generateMnemonic(randomAdapter?)`, `mnemonicToSeed(mnemonic, passphrase?)`, `validateMnemonic(mnemonic)`
-- **Types**: `ProgressCallback`, `TransmissionPayload`, `ValidationResult`, `CryptoKeyPair`, `EnhancedRSAManagerOptions`, `CreateRSAManagerOptions`
+- **createCryptoManager(options)** — Convenience factory. `createCryptoManager({ platform: 'node' })` or `createCryptoManager({ platform: 'expo', storageOptions?, storageKeyPrefix? })`.
+- **CryptoManager** (constructor: `keyStorage`, `randomValues`, optional `storageKeyPrefix`)
+  - Identity lifecycle: `generate(passphrase?)`, `recover(mnemonic, passphrase?)`, `load()`, `loadPublicKey()`, `hasKeys()`, `clear()`
+  - At rest: `encryptLocal(bytes)`, `decryptLocal(envelope)`
+  - To a public key: `encryptFor(recipientPublicKey, bytes)`, `decrypt(envelope)`
+  - Accessors: `publicKey` (32 bytes), `publicKeyBase64`, `isReady`
+- **Key derivation** (from `expo-crypto-lib`): `generateMnemonicPhrase(random)`, `validateMnemonicPhrase(mnemonic)`, `mnemonicToSeed(mnemonic, passphrase?)`, `deriveIdentityKeyPair(seed)`, `deriveLocalKey(seed)`
+- **Errors**: `CryptoError` with `code` — `NO_KEYS`, `AUTH_FAILED`, `BAD_FORMAT`, `UNSUPPORTED_VERSION`, `INVALID_MNEMONIC`, `STORAGE_FAILED`, `VALUE_TOO_LARGE`
+- **Envelope**: `VERSION`, `MODE_LOCAL`, `MODE_HPKE`, `readMode(envelope)`
+- **Types**: `CryptoManagerOptions`, `CreateCryptoManagerOptions`, `ExpoKeyStorageOptions`, `IdentityKeyPair`, `CryptoErrorCode`
 - **Adapters**: `IKeyStorage`, `IRandomValues`, `createExpoKeyStorage`, `createExpoRandomValues`, `createNodeKeyStorage`, `createNodeRandomValues`
-- **React Native entry**: `applyForgeOptimization`, `isOptimizationApplied`, `performanceTest` from `expo-crypto-lib/react-native`
+
+---
+
+## Envelope format
+
+Every ciphertext is self-describing, and its header is authenticated as AEAD associated data:
+
+```
+byte 0   version (0x02)
+byte 1   mode: 0x00 local, 0x01 hpke
+mode 0x00: nonce(24) || ciphertext+tag     XChaCha20-Poly1305 under the seed-derived local key
+mode 0x01: enc(32)   || ciphertext+tag     HPKE base mode to a public key
+```
+
+Overhead is 42 bytes for local mode and 50 bytes for HPKE mode.
 
 ---
 
 ## Dependencies
 
-- **Required**: `node-forge`, `base64-arraybuffer`.
-- **Optional (for Expo adapter)**: `expo-secure-store`, `expo-crypto`, `react-native` (peer). Install with `npx expo install expo-secure-store expo-crypto` if missing.
-- **Optional (for Forge optimization)**: `react-native-modpow` (only when using `expo-crypto-lib/react-native`).
+- **Required**: `@noble/ciphers`, `@noble/curves`, `@noble/hashes`, `@scure/bip39`, `@scure/base` — all pure JavaScript, so there is no native module and no prebuild.
+- **Optional (for the Expo adapter)**: `expo-secure-store`, `expo-crypto`, `react-native` (peer). Install with `npx expo install expo-secure-store expo-crypto` if missing.

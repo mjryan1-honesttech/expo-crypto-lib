@@ -1,57 +1,62 @@
 /**
- * Smoke test: library loads and node adapter + MnemonicManager work in Node (no native deps).
+ * Smoke test: the library loads and works in Node with no native dependencies.
  */
 
 import {
+  CryptoError,
+  CryptoManager,
+  createCryptoManager,
   createNodeKeyStorage,
   createNodeRandomValues,
-  createRSAManager,
-  EnhancedRSAManager,
-  MnemonicManager,
+  generateMnemonicPhrase,
+  mnemonicToSeed,
+  validateMnemonicPhrase,
 } from "../src/index";
 
+const VALID_24_WORDS =
+  "void come effort suffer camp survey warrior heavy shoot primary clutch crush open amazing screen patrol group space point ten exist slush involve unfold";
+
 describe("smoke", () => {
-  it("exports EnhancedRSAManager, createRSAManager, MnemonicManager, createNodeKeyStorage, createNodeRandomValues", () => {
-    expect(EnhancedRSAManager).toBeDefined();
-    expect(createRSAManager).toBeDefined();
-    expect(MnemonicManager).toBeDefined();
+  it("exports the manager, factory, adapters, and error type", () => {
+    expect(CryptoManager).toBeDefined();
+    expect(createCryptoManager).toBeDefined();
+    expect(CryptoError).toBeDefined();
     expect(createNodeKeyStorage).toBeDefined();
     expect(createNodeRandomValues).toBeDefined();
   });
 
   it("exposes node adapter with getItem, setItem, removeItem", () => {
     const storage = createNodeKeyStorage();
-    expect(storage).toBeDefined();
     expect(typeof storage.getItem).toBe("function");
     expect(typeof storage.setItem).toBe("function");
     expect(typeof storage.removeItem).toBe("function");
   });
 
   it("exposes createNodeRandomValues with getRandomValues", () => {
-    const rng = createNodeRandomValues();
-    expect(rng).toBeDefined();
-    expect(typeof rng.getRandomValues).toBe("function");
+    expect(typeof createNodeRandomValues().getRandomValues).toBe("function");
   });
 
-  it("MnemonicManager has validateMnemonic", () => {
-    expect(MnemonicManager.validateMnemonic).toBeDefined();
-    expect(typeof MnemonicManager.validateMnemonic).toBe("function");
-    expect(MnemonicManager.validateMnemonic("not valid words")).toBe(false);
+  it("validates a real BIP39 phrase and rejects nonsense", () => {
+    expect(validateMnemonicPhrase(VALID_24_WORDS)).toBe(true);
+    expect(validateMnemonicPhrase("not valid words")).toBe(false);
   });
 
-  it("MnemonicManager.generateMnemonic returns string", async () => {
-    const mnemonic = await MnemonicManager.generateMnemonic(
-      createNodeRandomValues(),
-    );
-    expect(typeof mnemonic).toBe("string");
-    expect(mnemonic.length).toBeGreaterThan(0);
+  it("generateMnemonicPhrase returns 24 valid words", () => {
+    const mnemonic = generateMnemonicPhrase(createNodeRandomValues());
+    expect(mnemonic.split(" ").length).toBe(24);
+    expect(validateMnemonicPhrase(mnemonic)).toBe(true);
   });
 
-  it("MnemonicManager.mnemonicToSeed returns Uint8Array", async () => {
-    const words =
-      "abandon ability able about above absent absorb abstract absurd abuse access accident account accuse achieve acid acoustic acquire across act action actor actual adapt";
-    const seed = await MnemonicManager.mnemonicToSeed(words);
+  it("mnemonicToSeed returns a 64-byte Uint8Array", () => {
+    const seed = mnemonicToSeed(VALID_24_WORDS);
     expect(seed).toBeInstanceOf(Uint8Array);
-    expect(seed.length).toBeGreaterThan(0);
+    expect(seed.length).toBe(64);
+  });
+
+  it("encrypts and decrypts end to end", async () => {
+    const manager = createCryptoManager({ platform: "node" });
+    await manager.generate();
+    const data = new TextEncoder().encode("hello");
+    expect(manager.decryptLocal(manager.encryptLocal(data))).toEqual(data);
   });
 });
