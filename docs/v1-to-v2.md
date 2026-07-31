@@ -163,6 +163,8 @@ The adapter contracts (`IKeyStorage`, `IRandomValues`), the pure-JS no-prebuild 
 
 **New runtime floor.** v2 requires React Native 0.70+ / Expo SDK 47+ with the Hermes engine, because X25519 needs `BigInt`. v1 had no such constraint.
 
-**Not yet verified on device.** Every gate above ran in Node. Execution in Expo Go on iOS and Android remains untested, and it is the one thing CI cannot cover.
+**Verified on Android, not yet on iOS.** The library was run on a physical Android device in Expo Go (SDK 54) and all 20 checks passed: Hermes and `BigInt`, `TextEncoder`, key generation through `expo-crypto`, `encryptLocal` round-trips from 0 B to 1 MB, HPKE `encryptFor`/`decrypt`, a two-party exchange, `AUTH_FAILED` on a tampered ciphertext, `INVALID_MNEMONIC` on a bad phrase, real Keychain/Keystore persistence with no mnemonic entry, `load()`, `loadPublicKey()`, deterministic `recover()`, and `clear()`. iOS remains untested; CI cannot cover either platform.
+
+Getting there required fixing a defect that made the package impossible to bundle for React Native at all — `index.ts` reached a `require` of Node's built-in `crypto`, which Metro resolves statically. Both 1.0.2 and the first cut of 2.0.0 shipped it, so the "runs in Expo Go" claim had never actually held. `tests/packaging.test.ts` now guards against a reshipment.
 
 **Pre-existing repairs folded in.** `npm run ci` was already failing on `main` before this work, from an unpushed dependabot devDependency bump: expo-module-scripts 55 no longer exports `createJestPreset`, TypeScript 6 rejects `moduleResolution: "node"`, and `@typescript-eslint/parser` was installed only nested under eslint-config-universe where eslint-plugin-import could not resolve it. All three are fixed here. The `moduleResolution` fix is a deprecation acknowledgement (`ignoreDeprecations: "6.0"`), so a real migration to node16 resolution is still owed before TypeScript 7.
