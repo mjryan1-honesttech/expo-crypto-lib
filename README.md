@@ -150,7 +150,7 @@ v1 had defects that could not be fixed while staying compatible:
 - Seed derivation was a **single SHA-512** instead of BIP39's PBKDF2-HMAC-SHA512 × 2048, so a passphrase cost one hash per guess.
 - The mnemonic wordlist was a **corrupted 2058-word variant** of BIP39 (it contained `voyal`, which is not a word, and was missing 13 real BIP39 words), had **no checksum**, and packed the last word from only 3 bits — so word 24 was always one of the first eight words. A typo that landed on another valid word silently derived a different key.
 - The recovery phrase was **written to secure storage** on every keygen.
-- `RECOMMENDED_KEY_SIZE = 3072` produced a 2484-byte private key PEM, above the ~2048-byte value size iOS accepts.
+- `RECOMMENDED_KEY_SIZE = 3072` produced a 2498-byte private key PEM, above the ~2048-byte value size iOS accepts.
 
 Because v1 phrases were not valid BIP39 and v1 seed derivation was unsound, there is no honest migration path that preserves either. v2 fixes all of the above and drops RSA, `node-forge`, and the `react-native-modpow` workaround entirely.
 

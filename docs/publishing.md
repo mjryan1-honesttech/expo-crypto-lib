@@ -134,13 +134,13 @@ You cannot republish the same version to npm; you must bump the version first.
 
 No npm token is needed; npm [Trusted Publishers](https://docs.npmjs.com/trusted-publishers) (OIDC) is configured for this repository with workflow filename `publish.yml`. **Publishing must stay in that file** — the OIDC trust is bound to the filename, so moving the publish step to another workflow breaks it.
 
-There are two ways to release, both ending in the same `publish.yml`:
+There are two ways to release, both ending in the same `publish.yml`, and **both requiring an approval click** — nothing reaches npm without one:
 
 | | Approve-to-release | Manual tag |
 | --- | --- | --- |
 | Trigger | CI succeeds on `main` with an untagged version | A maintainer pushes a `v*` tag |
-| Human step | Click **Review deployments → Approve** in the Actions UI | Create and push the tag |
-| Tag created by | `github-actions[bot]`, inside the approved job | The maintainer |
+| Tag created by | `github-actions[bot]`, inside the approved job | The maintainer, before the run starts |
+| Approval | Required — the `release` environment | Required — the same environment |
 
 ### Approve-to-release (default)
 
@@ -185,8 +185,10 @@ Nothing is published without that click, and a push that does not change the ver
    - Bump version: `npm version patch` (or `minor` / `major`).
    - Push the version commit: `git push origin main`.
 3. Create and push the tag (same version as `package.json`):
-   `git tag v1.0.3 && git push origin v1.0.3`
-4. **Publish Package** runs typecheck, lint, tests, and build, then publishes.
+   `git tag v2.0.1 && git push origin v2.0.1`
+4. **Publish Package** starts and waits on the `release` environment. After a reviewer approves, it runs typecheck, lint, tests, and build, then publishes.
+
+Pushing a `v*` tag therefore does not publish on its own — the approval is still required.
 
 Tagging manually before the gated job is approved is safe: the tag now exists, so the version check reports nothing to release and no approval is requested. If both somehow raced, npm rejects the duplicate version.
 
