@@ -6,8 +6,9 @@ This document explains **where the library lives**, **how to install and build i
 
 ## Requirements
 
-- **Node:** 20.19.4 or newer (for building, testing, and Node runtime usage). Use `nvm use` or `fnm use` with the included `.nvmrc`.
-- **Expo / React Native:** React Native 0.70+ / Expo SDK 47+ with the **Hermes** engine (X25519 requires `BigInt`). When using the Expo adapters (`createExpoKeyStorage`, `createExpoRandomValues`), your app must have `expo`, `expo-crypto`, `expo-secure-store`, and `react-native` installed (typically already present in an Expo project).
+- **Node:** 22 or newer (for building, testing, and Node runtime usage). Use `nvm use` or `fnm use` with the included `.nvmrc`.
+- **Expo / React Native:** Expo SDK 56 or 57 (React Native 0.85+) with the **Hermes** engine (X25519 requires `BigInt`). When using the Expo adapters (`createExpoKeyStorage`, `createExpoRandomValues`), your app must have `expo`, `expo-crypto`, `expo-secure-store`, and `react-native` installed (typically already present in an Expo project).
+- **Version policy:** only the latest major of Expo and npm, or the one before it (N and N-1), is supported. `npm run check:versions` enforces this and runs in CI. On Expo SDK 55 or older, use `expo-crypto-lib@2`.
 
 ---
 
@@ -22,12 +23,12 @@ This document explains **where the library lives**, **how to install and build i
 
 ### From the repo (local / workspace)
 
-1. Clone the repo and at its root install dependencies. **Node 20.19.4+ is required** (use `nvm use` or `fnm use` with the included `.nvmrc`):
+1. Clone the repo and at its root install dependencies. **Node 22+ and npm 11 or 12 are required** (use `nvm use` or `fnm use` with the included `.nvmrc`; npm refuses to install on an unsupported version, via `devEngines`):
 
    ```bash
    git clone https://github.com/mjryan1-honesttech/expo-crypto-lib.git
    cd expo-crypto-lib
-   nvm use    # or: fnm use — uses .nvmrc to select Node 20+
+   nvm use    # or: fnm use — uses .nvmrc to select Node 22+
    npm install
    ```
 

@@ -23,7 +23,7 @@ npm install expo@~<major>.0.0
 npx expo install --fix
 ```
 
-This app targets **SDK 54**. Scan with Expo Go's own scanner, not the system camera, and keep the phone on the same network as the dev server.
+This app targets **SDK 57**. Scan with Expo Go's own scanner, not the system camera, and keep the phone on the same network as the dev server.
 
 ## Bundle without a device
 
@@ -43,4 +43,8 @@ Biometric gating (`requireAuthentication`) is deliberately not exercised: `expo-
 
 ## Status
 
-Android, Expo Go SDK 54, physical device: **all 20 passed**. iOS: not yet run.
+Android, Expo Go **SDK 54**, physical device: **all 20 passed**. iOS: not yet run.
+
+That device run predates the SDK 57 upgrade. On SDK 57 the app bundles cleanly for both
+Android and iOS, but **no device run has happened yet** — do not read the SDK 54 result as
+covering it.

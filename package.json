@@ -1,6 +1,6 @@
 {
   "name": "expo-crypto-lib",
-  "version": "2.0.0",
+  "version": "3.0.0",
   "description": "X25519 + HPKE authenticated encryption with BIP39 key recovery, for Expo, React Native, and Node",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -10,6 +10,7 @@
     "lint": "eslint src tests",
     "test": "jest --runInBand",
     "ci": "npm run typecheck && npm run lint -- --max-warnings 0 && npm run test && npm run build",
+    "check:versions": "node scripts/check-versions.mjs",
     "prepublishOnly": "npm run build"
   },
   "files": [
@@ -47,11 +48,17 @@
   "author": "expo-crypto-lib contributors",
   "license": "MIT",
   "engines": {
-    "node": ">=20.19.4"
+    "node": ">=22.0.0"
+  },
+  "devEngines": {
+    "packageManager": {
+      "name": "npm",
+      "version": "^11.0.0 || ^12.0.0",
+      "onFail": "error"
+    }
   },
   "overrides": {
-    "minimatch": "^10.2.2",
-    "postcss": "^8.5.25"
+    "minimatch": "^10.2.2"
   },
   "repository": {
     "type": "git",
@@ -69,9 +76,9 @@
     "@scure/bip39": "^1.6.0"
   },
   "peerDependencies": {
-    "expo": "*",
-    "expo-crypto": "*",
-    "expo-secure-store": "*",
+    "expo": ">=56.0.0",
+    "expo-crypto": ">=56.0.0",
+    "expo-secure-store": ">=56.0.0",
     "react-native": "*"
   },
   "peerDependenciesMeta": {
@@ -91,8 +98,10 @@
   "devDependencies": {
     "@types/node": "^25.3.0",
     "@typescript-eslint/parser": "^8.65.0",
-    "expo-module-scripts": "^55.0.2",
-    "expo-modules-core": "^55.0.17",
+    "babel-preset-expo": "~56.0.18",
+    "expo-module-scripts": "^56.0.3",
+    "expo-modules-core": "^57.0.8",
+    "semver": "^7.8.5",
     "typescript": "~6.0.2"
   },
   "exports": {

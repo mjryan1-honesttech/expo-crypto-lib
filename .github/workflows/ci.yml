@@ -1,14 +1,22 @@
 name: CI
 
-# Runs for the default branch (main) and for PRs targeting it.
+# Runs for the default branch (main) and for PRs targeting it, plus a weekly run so
+# the version policy (see the `versions` job) notices a new Expo SDK or npm major
+# even when nothing is being pushed.
 on:
   push:
     branches: [main]
   pull_request:
     branches: [main]
+  schedule:
+    - cron: '0 9 * * 1'
+  workflow_dispatch:
 
+# The event name is part of the group on purpose. Without it the Monday cron run on
+# main shares a group with an in-flight push run and cancels it, and a cancelled CI
+# run never fires the workflow_run trigger that publish.yml depends on.
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
+  group: ${{ github.workflow }}-${{ github.ref }}-${{ github.event_name }}
   cancel-in-progress: true
 
 permissions:
@@ -21,36 +29,66 @@ jobs:
     timeout-minutes: 20
     strategy:
       matrix:
-        node-version: ['20', '22']
+        node-version: ['22', '24']
     steps:
       - uses: actions/checkout@v4
 
+      # Deliberately no `cache: 'npm'`. That input makes setup-node run
+      # `npm config get cache` using the npm *bundled with Node*, before the pinned npm
+      # below is installed. Node 22 bundles npm 10.9.8, which is outside the supported
+      # range, and devEngines rejects it (EBADDEVENGINES) on any npm command — so the
+      # job died in this step. `npm install -g` does not trigger that check, which is
+      # why the bootstrap itself is fine. Do not re-add the cache input.
       - name: Setup Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
-          cache: 'npm'
 
-      # package-lock.json is written by npm 11; npm 10 resolves peer-driven nested
-      # installs differently and rejects it as out of sync.
-      - name: Use npm 11
-        run: npm install -g npm@11.12.1
+      # npm 12 requires Node ^22.22.2 || ^24.15.0 || >=26.0.0, which is why Node 20 is
+      # no longer in the matrix (it also went end-of-life on 2026-04-30). Keep this
+      # version in step with the same pin in publish.yml; check-versions.mjs fails the
+      # build if the two ever disagree.
+      - name: Use npm 12
+        run: npm install -g npm@12.0.2
 
       - name: Install dependencies
         run: npm ci
 
-      # Full test suite (includes slow RSA tests) runs only on Node 20 to keep CI fast.
-      - name: Typecheck, lint, test, and build (Node 20)
-        if: matrix.node-version == '20'
+      # The full suite runs on the lower Node version to keep CI fast.
+      - name: Typecheck, lint, test, and build (Node 22)
+        if: matrix.node-version == '22'
         run: npm run ci
         env:
           CI: true
 
-      - name: Typecheck, lint, and build (Node 22)
-        if: matrix.node-version != '20'
+      - name: Typecheck, lint, and build (Node 24)
+        if: matrix.node-version != '22'
         run: npm run typecheck && npm run lint -- --max-warnings 0 && npm run build
         env:
           CI: true
+
+  # Fails when a tracked Expo package or npm is declared outside its latest major (N)
+  # or the one before it (N-1). This queries the registry, so it can go red on a day
+  # nothing was pushed — that is the alarm working, not a flake.
+  versions:
+    name: Version policy (N / N-1)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      # No `cache: 'npm'` — see the note in the check job above.
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Use npm 12
+        run: npm install -g npm@12.0.2
+
+      - run: npm ci
+
+      - name: Check Expo and npm versions
+        run: npm run check:versions
 
   security:
     name: Security (audit)
@@ -58,13 +96,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # No `cache: 'npm'` — see the note in the check job above.
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'npm'
+          node-version: '22'
 
-      - name: Use npm 11
-        run: npm install -g npm@11.12.1
+      - name: Use npm 12
+        run: npm install -g npm@12.0.2
 
       - run: npm ci
 
@@ -78,14 +116,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup Node.js 20
+      # No `cache: 'npm'` — see the note in the check job above.
+      - name: Setup Node.js 22
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'npm'
+          node-version: '22'
 
-      - name: Use npm 11
-        run: npm install -g npm@11.12.1
+      - name: Use npm 12
+        run: npm install -g npm@12.0.2
 
       - name: Install dependencies and build
         run: npm ci && npm run build

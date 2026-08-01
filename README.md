@@ -74,7 +74,7 @@ For Expo apps, install peer dependencies:
 npx expo install expo-crypto expo-secure-store
 ```
 
-**Requirements:** React Native 0.70+ / Expo SDK 47+ with the Hermes engine (X25519 needs `BigInt`), or Node 20.19.4+.
+**Requirements:** Expo SDK 56 or 57 (React Native 0.85+) with the Hermes engine (X25519 needs `BigInt`), or Node 22+. See [Supported versions](#supported-versions).
 
 ## Quick start
 
@@ -178,7 +178,27 @@ Because v1 phrases were not valid BIP39 and v1 seed derivation was unsound, ther
 - **Module not found: expo-secure-store / expo-crypto** — Run `npx expo install expo-secure-store expo-crypto`
 - **`BigInt` errors on Android** — Enable the Hermes engine (default since RN 0.70)
 - **Error in Node with createExpoKeyStorage** — Use `createNodeKeyStorage()` and `createNodeRandomValues()` for Node
-- **EBADENGINE / unsupported Node** — Dev tooling needs Node 20.19.4+; use `nvm use` or `fnm use`
+- **EBADENGINE / unsupported Node** — Dev tooling needs Node 22+; use `nvm use` or `fnm use`
+- **ERESOLVE on install** — This package supports Expo SDK 56 and newer. On SDK 55 or older, use `expo-crypto-lib@2`
+
+## Supported versions
+
+This package supports the **latest major of Expo and npm, or the one before it (N and N-1)** — nothing older.
+
+| | Supported |
+|---|---|
+| Expo SDK | 57, 56 |
+| npm (development) | 12, 11 |
+| Node | 22+ |
+
+`npm run check:versions` enforces this. It resolves N for each package from that package's
+own `dist-tags.latest` on the registry and fails when anything is declared outside `{N, N-1}`,
+covering `package.json`, `example/`, `demo/`, and the npm version pinned in CI. It runs on every
+CI build and weekly, so a new Expo SDK or npm major turns the build red until the pins are moved.
+
+The published `peerDependencies` carry a floor (`>=56.0.0`) rather than an upper bound
+deliberately: an upper bound would break installs for anyone who upgrades to a newer SDK before
+a matching release of this package exists.
 
 ## Docs
 
