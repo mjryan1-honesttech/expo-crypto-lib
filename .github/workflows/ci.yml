@@ -33,11 +33,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # Deliberately no `cache: 'npm'`. That input makes setup-node run
+      # `npm config get cache` using the npm *bundled with Node*, before the pinned npm
+      # below is installed. Node 22 bundles npm 10.9.8, which is outside the supported
+      # range, and devEngines rejects it (EBADDEVENGINES) on any npm command — so the
+      # job died in this step. `npm install -g` does not trigger that check, which is
+      # why the bootstrap itself is fine. Do not re-add the cache input.
       - name: Setup Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
-          cache: 'npm'
 
       # npm 12 requires Node ^22.22.2 || ^24.15.0 || >=26.0.0, which is why Node 20 is
       # no longer in the matrix (it also went end-of-life on 2026-04-30). Keep this
@@ -72,10 +77,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # No `cache: 'npm'` — see the note in the check job above.
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-          cache: 'npm'
 
       - name: Use npm 12
         run: npm install -g npm@12.0.2
@@ -91,10 +96,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # No `cache: 'npm'` — see the note in the check job above.
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-          cache: 'npm'
 
       - name: Use npm 12
         run: npm install -g npm@12.0.2
@@ -111,11 +116,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # No `cache: 'npm'` — see the note in the check job above.
       - name: Setup Node.js 22
         uses: actions/setup-node@v4
         with:
           node-version: '22'
-          cache: 'npm'
 
       - name: Use npm 12
         run: npm install -g npm@12.0.2
