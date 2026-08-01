@@ -12,7 +12,7 @@ A clear description of the bug.
 ## Environment
 - **expo-crypto-lib version:** (e.g. 1.0.2)
 - **Expo SDK version:** (e.g. 51, or "N/A" if using React Native without Expo)
-- **Platform(s):** (e.g. iOS 17, Android 14, Web, Node 20)
+- **Platform(s):** (e.g. iOS 17, Android 14, Web, Node 22)
 
 ## Steps to reproduce
 1. 

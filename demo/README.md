@@ -24,7 +24,7 @@ Scan with **Expo Go's own scanner**, not the system camera, and keep the phone o
 
 If you are **changing** the library and want the demo to pick up your edits, this is the wrong app: it will keep using the published release. Use [`example/`](../example) instead, which packs the working tree with `npm run sync`.
 
-Expo Go ships one version per SDK, so the app must match your client's major exactly — an older SDK is not a safer fallback. This app targets **SDK 54**. If yours differs:
+Expo Go ships one version per SDK, so the app must match your client's major exactly — an older SDK is not a safer fallback. This app targets **SDK 57**. If yours differs:
 
 ```bash
 npm install expo@~<major>.0.0

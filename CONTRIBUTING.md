@@ -11,7 +11,7 @@ If you discover a security vulnerability, **do not open a public issue.** Report
 ## How to get started
 
 1. **Fork the repository** and create your branch from `main`.
-2. **Use Node 20.19.4+** — The dev tooling requires Node 20. Use `nvm use` or `fnm use` with the included `.nvmrc`.
+2. **Use Node 22+ with npm 11 or 12** — Enforced by `devEngines`, so `npm install` fails on anything else. Use `nvm use` or `fnm use` with the included `.nvmrc`. Only the latest major of Expo and npm, or the one before it, is supported; `npm run check:versions` checks this and runs in CI.
 3. **Install dependencies** in the repo root:
    ```bash
    npm install

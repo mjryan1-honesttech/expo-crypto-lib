@@ -62,10 +62,11 @@ jobs:
           node-version: '24'
           cache: 'npm'
 
-      # Must match the npm that writes package-lock.json; npm 10 rejects it as
-      # out of sync. Keep in step with the same pin in ci.yml.
-      - name: Use npm 11
-        run: npm install -g npm@11.12.1
+      # Keep in step with the same pin in ci.yml; check-versions.mjs fails the build
+      # if the two files ever disagree. An older npm rejects a lockfile written by a
+      # newer one as out of sync, so the version here is not incidental.
+      - name: Use npm 12
+        run: npm install -g npm@12.0.2
 
       - name: Install dependencies
         run: npm ci
@@ -152,10 +153,11 @@ jobs:
           node-version: '24'
           cache: 'npm'
 
-      # Must match the npm that writes package-lock.json; npm 10 rejects it as
-      # out of sync. Keep in step with the same pin in ci.yml.
-      - name: Use npm 11
-        run: npm install -g npm@11.12.1
+      # Keep in step with the same pin in ci.yml; check-versions.mjs fails the build
+      # if the two files ever disagree. An older npm rejects a lockfile written by a
+      # newer one as out of sync, so the version here is not incidental.
+      - name: Use npm 12
+        run: npm install -g npm@12.0.2
 
       - name: Install dependencies
         run: npm ci

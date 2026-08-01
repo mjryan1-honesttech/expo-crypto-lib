@@ -6,7 +6,7 @@ This document describes **how to list and publish** the package so others can in
 
 ## Pre-publish checklist
 
-1. **Node**: Use Node 20.19.4+ (required by the dev tooling). Run `nvm use` or `fnm use` with the included `.nvmrc`.
+1. **Node and npm**: Use Node 22+ with npm 11 or 12 (enforced by `devEngines`). Run `nvm use` or `fnm use` with the included `.nvmrc`.
 2. **Build**: From the root of this repository run `npm run build` and ensure `dist/` is up to date.
 3. **Version**: Bump `version` in `package.json` (e.g. follow [Semantic Versioning](https://semver.org/)).
 4. **Access**: For **scoped** packages (`@scope/expo-crypto-lib`), confirm you have publish rights for that scope (npm org or GitHub org).
@@ -196,7 +196,7 @@ Nothing is published without that click, and a push that does not change the ver
 ### Two workflow details that are easy to undo by accident
 
 - **No `registry-url` on `actions/setup-node` in the publishing jobs.** When `registry-url` is set, setup-node always writes `_authToken=${NODE_AUTH_TOKEN}` into `.npmrc`. With no token supplied, npm uses setup-node's literal placeholder instead of performing the OIDC exchange, and the registry answers `E404` — which is what happened on the first 2.0.0 attempt. See [actions/setup-node#1551](https://github.com/actions/setup-node/issues/1551). npm already defaults to registry.npmjs.org, so the input is unnecessary. There is no `auth-token-line` input to disable the behaviour; that is a proposal in the issue, not a shipped option.
-- **Node 24 in the publishing jobs.** Trusted publishing requires Node ≥ 22.14.0. The rest of CI still tests on Node 20 and 22, which is unrelated.
+- **Node 24 in the publishing jobs.** Trusted publishing requires Node ≥ 22.14.0. The rest of CI tests on Node 22 and 24, which is unrelated.
 
 ### Manual tag release (still supported)
 
