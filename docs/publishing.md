@@ -37,7 +37,13 @@ npm publish
 npm publish --access public
 ```
 
-Only files listed in `package.json` `"files"` (and always `package.json` and `README`) are included; the repo uses `dist`, `docs`, and `LICENSE`.
+Only files listed in `package.json` `"files"` (and always `package.json` and `README`) are included. This repo lists `dist`, `expo-module.config.json`, `README.md`, `CHANGELOG.md`, `LICENSE`, and the consumer-facing docs **individually** — `docs/getting-started.md`, `docs/use-cases.md`, `docs/v1-to-v2.md`, and `docs/v2-to-v3.md`.
+
+> **Adding a doc does not publish it.** The list is explicit rather than a blanket `docs`
+> entry, so that this file — which is maintainer-only — stays out of the tarball. The
+> trade-off is that a new consumer-facing doc must be added to `files` by hand or it ships
+> to nobody. The `pack` CI job asserts both the expected entries and the absence of this
+> file.
 
 ### 3. Install for consumers
 
@@ -205,7 +211,7 @@ Nothing is published without that click, and a push that does not change the ver
    - Bump version: `npm version patch` (or `minor` / `major`).
    - Push the version commit: `git push origin main`.
 3. Create and push the tag (same version as `package.json`):
-   `git tag v2.0.1 && git push origin v2.0.1`
+   `git tag "v$(node -p "require('./package.json').version")" && git push origin --tags`
 4. **Publish Package** starts and waits on the `release` environment. After a reviewer approves, it runs typecheck, lint, tests, and build, then publishes. It does not create a tag on this path — you already did.
 
 Pushing a `v*` tag therefore does not publish on its own — the approval is still required.

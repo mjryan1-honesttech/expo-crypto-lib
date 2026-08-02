@@ -1,5 +1,10 @@
 # v1 to v2: what changed and why
 
+> This document describes the **1.0.2 → 2.0.0** change and is kept as history. Version
+> numbers and platform requirements in it are those of v2 at the time. For the current
+> supported versions see the [README](../README.md), and for the 2.x → 3.x change see
+> [v2 to v3](v2-to-v3.md).
+
 v1 had defects that could not be fixed while preserving compatibility, so v2 is a clean break with no legacy read path. RSA, `node-forge`, and the `react-native-modpow` workaround all leave; the mnemonic becomes standard BIP39; every ciphertext becomes authenticated.
 
 **Migration reality, stated up front:** v1.0.2 ciphertexts cannot be read by v2, and v1.0.2 recovery phrases do not derive v2 keys. Anything that must survive has to be decrypted with 1.0.2 first.
@@ -141,7 +146,7 @@ These are desktop numbers; on a mid-range phone v1 was far worse, which is preci
 
 ## 8. Verification posture
 
-v1 had 65 tests and **zero against any published specification vector**. v2 has 87 test blocks producing 95 executed cases, including:
+v1 had 65 tests and **zero against any published specification vector**. v2 has 112 tests across 8 suites, including:
 
 - **RFC 9180 Appendix A.2** known-answer vectors — encapsulation, decapsulation, the key schedule, and opening the specification's own ciphertext.
 - **Official BIP39 vectors** for validation and seed derivation.

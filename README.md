@@ -6,6 +6,8 @@
 
 If your Expo or React Native app needs to encrypt sensitive data—and you want users to recover their keys if they lose their phone—this library gives you authenticated encryption with BIP39 mnemonic-based key recovery. No native iOS or Android code, no prebuild. Works in Node too.
 
+> **Upgrading from 2.x?** Your data is unaffected — v3 changes no cryptography and no API, so 2.0.0 ciphertexts and recovery phrases keep working. The major is only a narrower support window: Expo SDK 56+ and Node 22+. On SDK 55 or older, stay on `expo-crypto-lib@2`. See [v2 to v3](docs/v2-to-v3.md).
+
 > **Upgrading from 1.x?** v2 is a clean break. Data encrypted with 1.0.2 cannot be read by v2, and 1.0.2 recovery phrases do not derive v2 keys. Decrypt anything you need with 1.0.2 before upgrading. See [Why v2 breaks compatibility](#why-v2-breaks-compatibility).
 
 ### Why would I want this?
@@ -204,8 +206,10 @@ a matching release of this package exists.
 
 - [Getting started](docs/getting-started.md) — Install, build, API, dependencies
 - [Use cases](docs/use-cases.md) — Example scenarios with code
+- [Changelog](CHANGELOG.md) — Release history
+- [v2 to v3](docs/v2-to-v3.md) — Why v3 is a major, and why your data is unaffected
 - [v1 to v2](docs/v1-to-v2.md) — What changed, why, and the API migration map
-- [Publishing](docs/publishing.md) — npm, GitHub Packages
+- [Publishing](docs/publishing.md) — npm, GitHub Packages (maintainers; repo only)
 
 **Source**: [https://github.com/mjryan1-honesttech/expo-crypto-lib](https://github.com/mjryan1-honesttech/expo-crypto-lib)
 
