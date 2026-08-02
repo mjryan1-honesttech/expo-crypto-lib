@@ -165,6 +165,12 @@ jobs:
         run: npm ci && npm run build
 
       # Guards package.json "files" and critical entries for published consumers.
+      #
+      # `files` lists the consumer docs individually rather than the whole docs/ directory,
+      # so that docs/publishing.md — maintainer-only — stays out of the tarball. The
+      # trade-off is that a new doc ships to nobody unless it is added by hand, so the
+      # positive checks below are what catch that, and the negative check is what keeps
+      # the exclusion honest.
       - name: Verify tarball includes dist, config, and docs
         run: |
           set -e
@@ -174,3 +180,8 @@ jobs:
           grep -q 'expo-module.config.json' pack-list.txt || (echo "Missing expo-module.config.json" && exit 1)
           grep -q 'README.md' pack-list.txt || (echo "Missing README.md" && exit 1)
           grep -q 'package.json' pack-list.txt || (echo "Missing package.json" && exit 1)
+          grep -q 'CHANGELOG.md' pack-list.txt || (echo "Missing CHANGELOG.md" && exit 1)
+          for doc in getting-started use-cases v1-to-v2 v2-to-v3; do
+            grep -q "docs/$doc.md" pack-list.txt || (echo "Missing docs/$doc.md" && exit 1)
+          done
+          ! grep -q 'docs/publishing.md' pack-list.txt || (echo "docs/publishing.md is maintainer-only and must not be published" && exit 1)
