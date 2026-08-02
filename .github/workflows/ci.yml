@@ -93,6 +93,7 @@ jobs:
   security:
     name: Security (audit)
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
 
@@ -106,8 +107,43 @@ jobs:
 
       - run: npm ci
 
-      - name: Audit dependencies
+      # Two tiers, because the blast radii are not comparable. Only @noble/* and
+      # @scure/* reach consumers, and that set is small enough to hold to a strict
+      # threshold. The dev tree carries the Expo toolchain, whose moderate advisories
+      # recur and are frequently not resolvable from here.
+      - name: Audit production dependencies (what consumers install)
+        run: npm audit --omit=dev --audit-level=low
+
+      - name: Audit the full dev tree
         run: npm audit --audit-level=high
+
+      # Advisories say nothing about integrity: this is the check that would catch a
+      # tampered or re-published tarball. It needs a real node_modules — with
+      # --package-lock-only it reports "no dependencies to audit" — so it must stay
+      # after npm ci.
+      - name: Verify registry signatures and attestations
+        run: npm audit signatures
+
+      # The two example apps, audited straight from a lockfile with no install.
+      #
+      # `high` is the only workable threshold for them. Both carry the same 10 moderate
+      # advisories, all tracing to one upstream uuid issue (GHSA-w5hq-g745-h8pq) reached
+      # through xcode -> @expo/prebuild-config -> @expo/cli -> expo. npm's proposed fix
+      # is expo@46.0.21, an eleven-major downgrade, so `moderate` would fail here every
+      # run with no remedy available.
+      - name: Audit demo/
+        working-directory: demo
+        run: npm audit --package-lock-only --audit-level=high
+
+      # example/ deliberately commits no lockfile (the library is installed there with
+      # --no-save), so one is synthesized purely to audit against. Consequence: this
+      # step resolves fresh versions on every run and can therefore go red with no
+      # commit, the same way the versions job can.
+      - name: Audit example/
+        working-directory: example
+        run: |
+          npm install --package-lock-only --ignore-scripts
+          npm audit --package-lock-only --audit-level=high
 
   pack:
     name: Verify npm pack (publish contents)
