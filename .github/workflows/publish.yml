@@ -61,7 +61,7 @@ jobs:
       # with the npm bundled in Node, before the pinned npm below is installed, and
       # devEngines rejects an out-of-range npm on any command (EBADDEVENGINES).
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: '24'
 
@@ -155,7 +155,7 @@ jobs:
       # with the npm bundled in Node, before the pinned npm below is installed, and
       # devEngines rejects an out-of-range npm on any command (EBADDEVENGINES).
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: '24'
 

@@ -40,7 +40,7 @@ jobs:
       # job died in this step. `npm install -g` does not trigger that check, which is
       # why the bootstrap itself is fine. Do not re-add the cache input.
       - name: Setup Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: ${{ matrix.node-version }}
 
@@ -78,7 +78,7 @@ jobs:
       - uses: actions/checkout@v4
 
       # No `cache: 'npm'` — see the note in the check job above.
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: '22'
 
@@ -97,7 +97,7 @@ jobs:
       - uses: actions/checkout@v4
 
       # No `cache: 'npm'` — see the note in the check job above.
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: '22'
 
@@ -118,7 +118,7 @@ jobs:
 
       # No `cache: 'npm'` — see the note in the check job above.
       - name: Setup Node.js 22
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: '22'
 
